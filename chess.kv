@@ -4,7 +4,7 @@
             rgb: (0.43, 0.26, 0)
         Rectangle:
             pos: self.pos
-            size: self.size
+            #size: self.width, self.height
 
 <LightTile>:
     canvas.before:
@@ -12,4 +12,24 @@
             rgb: (0.92, 0.85, 0.72)
         Rectangle:
             pos: self.pos
-            size: self.size
+            #size: self.width, self.height
+
+<DragLabel>:
+    # Define the properties for the DragLabel
+    drag_rectangle: self.x, self.y, self.width, self.height
+    drag_distance: 0
+
+<ChessBoard>:
+    canvas.before:
+    #    Color:
+    #        rgb: (0.92, 0.85, 0.72)
+    #    Rectangle:
+    #        pos: self.pos
+    #        size: self.width/6, self.height/6
+#
+        Color:
+            rgb: (0.92, 0.85, 0.72)
+        Rectangle:
+            pos: self.x + 600, self.y + 600
+            size: self.width/6, self.height/6
+#
