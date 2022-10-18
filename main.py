@@ -84,7 +84,7 @@ class ChessBoard(GridLayout):
 
                 pieceColor = 'w' if self.board[i][j].islower() else 'b'
                 piece = 'king'
-                src = f'NoShadow/128h/{pieceColor}_{piece}_png_128px.png'
+                src = f'128h/{pieceColor}_{piece}_png_128px.png'
                 self.add_widget(DragPiece(source=src) if self.board[i][j] != '-' else Label())
         #self.add_widget(DragLabel(source='NoShadow/128h/b_king_png_128px.png'))
 
