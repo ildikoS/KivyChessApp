@@ -58,6 +58,14 @@ def positions_from_FEN(fenStr):
     print(board)
     return board
 
+piecesDict = {
+    'k': "king", #King()
+    'q': "queen",
+    'b': "bishop",
+    'n': "knight",
+    'r': "rook",
+    'p': "pawn"
+}
 
 class ChessBoard(GridLayout):
     initialFEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1'
@@ -68,12 +76,11 @@ class ChessBoard(GridLayout):
         self.cols, self.rows = 8, 8
 
         """adding red lines"""
-        screen_height = 70*8
-        for i in range(screen_height//70):
+        for i in range(tile_size*self.cols//70):
             with self.canvas:
                 Color(1, .1, .1, .9)
-                Line(width=2, points=[i*70, 0, i*70, screen_height])
-                Line(width=2, points=[0, i*70, screen_height, i*70])
+                Line(width=2, points=[i*70, 0, i*70, tile_size*self.cols])
+                Line(width=2, points=[0, i*70, tile_size*self.rows, i*70])
 
         """drawing board with pieces"""
         for i in range(8):
@@ -82,8 +89,9 @@ class ChessBoard(GridLayout):
                     Color(0.92, 0.85, 0.72) if (i + j) % 2 == 0 else Color(0.43, 0.26, 0)
                     Rectangle(pos=(70*i, 70*j))
 
-                pieceColor = 'w' if self.board[i][j].islower() else 'b'
-                piece = 'king'
+                pieceColor = 'b' if self.board[i][j].islower() else 'w'
+                piece = piecesDict.get(self.board[i][j].lower())
+
                 src = f'128h/{pieceColor}_{piece}_png_128px.png'
                 self.add_widget(DragPiece(source=src) if self.board[i][j] != '-' else Label())
         #self.add_widget(DragLabel(source='NoShadow/128h/b_king_png_128px.png'))
