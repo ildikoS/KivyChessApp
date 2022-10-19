@@ -30,14 +30,8 @@ class DragPiece(DragBehavior, Image):
         super(DragPiece, self).on_touch_up(touch)
 
         tx, ty = round(self.get_center_x()), round(self.get_center_y())
-        print(tx)
-        print(ty)
-
-        # if tx > ...
-        self.set_center_x(round(tx / tile_size) * tile_size - (tile_size // 2))
-
-        # if ty > ...
-        self.set_center_y(round(ty / tile_size) * tile_size - (tile_size // 2))
+        self.set_center_x((tx // tile_size) * tile_size + (tile_size // 2))
+        self.set_center_y((ty // tile_size) * tile_size + (tile_size // 2))
 
     def on_touch_move(self, touch):
         super(DragPiece, self).on_touch_move(touch)
@@ -57,6 +51,7 @@ def positions_from_FEN(fenStr):
 
     print(board)
     return board
+
 
 piecesDict = {
     'k': "king", #King()
