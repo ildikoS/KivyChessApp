@@ -4,6 +4,17 @@ from kivy.uix.image import Image
 from main import tile_size, layout, enemy
 
 
+def generate_moves(startX, startY):
+    #tuples = [(-1, -1), (-1, 0), (0, -1), (1, 1), (1, 0), (0, 1), (-1, 1), (1, -1)]
+    availableMoves = []
+
+    for i in range(-1, 1):
+        for j in range(-1, 1):
+            targetX, targetY = startX + i, startY + j
+            if board[targetX][targetY] == empty or board[targetX][targetY] == any(enemy.pieces):
+                availableMoves.append((targetX, targetY))
+
+
 class DragPiece(DragBehavior, Image):
     def __init__(self, **kwargs):
         super(DragPiece, self).__init__(**kwargs)
@@ -15,6 +26,8 @@ class DragPiece(DragBehavior, Image):
         tx, ty = round(self.get_center_x()), round(self.get_center_y())
         centerX = (tx // tile_size) * tile_size + (tile_size // 2)
         centerY = (ty // tile_size) * tile_size + (tile_size // 2)
+        if self.collide_point(*touch.pos):
+            print(tx // tile_size)
         self.set_center_x(centerX)
         self.set_center_y(centerY)
 
@@ -28,7 +41,7 @@ class DragPiece(DragBehavior, Image):
         if self.collide_point(*touch.pos):
             if centerX != self.downX or centerY != self.downY:
                 print("moved away from prev pos")
-                #enemy = player1 if enemy == player2 else player2
+                # enemy = player1 if enemy == player2 else player2
             print(f"centerX={centerX} and downX={self.downX}")
             print(f"centerY={centerY} and downY={self.downY}")
 
@@ -37,15 +50,16 @@ class DragPiece(DragBehavior, Image):
 
         self.downX, self.downY = round(self.get_center_x()), round(self.get_center_y())
 
+
 class Piece(Image):
     def __init__(self, **kwargs):
         super(Piece, self).__init__(**kwargs)
-        #self.color = None
+        # self.color = None
 
-    #def setColor(self, color):
+    # def setColor(self, color):
     #    self.color = color
 
-    #def position(self, x, y):
+    # def position(self, x, y):
     #    self.x = x
     #    self.y = y
 

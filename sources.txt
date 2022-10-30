@@ -1,0 +1,2 @@
+fen: https://www.chessprogramming.org/Forsyth-Edwards_Notation
+legal movements: https://levelup.gitconnected.com/finding-all-legal-chess-moves-2cb872d05bc6

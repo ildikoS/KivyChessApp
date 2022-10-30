@@ -43,14 +43,13 @@ def positions_from_FEN(fenStr):
     return board
 
 
-#piecesDict = {
-#    'k': King(),
-#    'q': Queen(),
-#    'b': Bishop(),
-#    'n': Knight(),
-#    'r': Rook(),
-#    'p': Pawn()
-#}
+def get_piece(char):
+    if char == 'k': return piece.King()
+    if char == 'q': return piece.Queen()
+    if char == 'b': return piece.Bishop()
+    if char == 'n': return piece.Knight()
+    if char == 'r': return piece.Rook()
+    if char == 'p': return piece.Pawn()
 
 
 class ChessBoard:
@@ -75,29 +74,17 @@ class ChessBoard:
                 filePiece = self.board[i][j]
 
                 if filePiece != '-':
-                    currPiece = self.get_piece(filePiece.lower())
-
-                    #currPiece = piecesDict[filePiece.lower()]
+                    currPiece = get_piece(filePiece.lower())
                     pieceColor = 'w' if filePiece.islower() else 'b'
 #
                     srcImg = f'128h/{pieceColor}_{currPiece}_png_128px.png'
-                    #pieceInstance = currPiece(source=srcImg, pos=(tile_size*j, tile_size*i))
                     currPiece.source = srcImg
                     currPiece.pos = (tile_size * j, tile_size * i)
-                    currPiece.size_hint = (0.125, 0.125)
                     layout.add_widget(currPiece)
 
                     blacks.append(currPiece) if pieceColor == 'b' else whites.append(currPiece)
                     pieces.append(currPiece)
         print(blacks)
-
-    def get_piece(self, char):
-        if char == 'k': return piece.King()
-        if char == 'q': return piece.Queen()
-        if char == 'b': return piece.Bishop()
-        if char == 'n': return piece.Knight()
-        if char == 'r': return piece.Rook()
-        if char == 'p': return piece.Pawn()
 
 
 class ChessApp(App):
