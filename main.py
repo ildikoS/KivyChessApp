@@ -1,95 +1,49 @@
 from kivy.config import Config
 from kivy.app import App
-from kivy.uix.behaviors import DragBehavior
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
 
-import piece
+from piece import GameEngine
 
 Config.set('graphics', 'width', '560')
 Config.set('graphics', 'height', '560')
-Config.set('graphics', 'resizable', '0')
-
-tile_size = 70
-layout = FloatLayout()
+#Config.set('graphics', 'resizable', '0')
 
 
-class Player:
-    def __init__(self, pieces):
-        self.pieces = pieces
-
-
-blacks = []
-whites = []
-pieces = list()
-player1 = Player(blacks)
-player2 = Player(whites)
-enemy = player1
-
-
-def positions_from_FEN(fenStr):
-    board = []
-    innerBoard = []
-    for char in fenStr.split()[0]:
-        if char == '/':
-            board.append(innerBoard)
-            innerBoard = []
-        elif char.isdigit():
-            innerBoard.extend('-' * int(char))
-        else:
-            innerBoard.append(char)
-
-    print(board)
-    return board
-
-
-def get_piece(char):
-    if char == 'k': return piece.King()
-    if char == 'q': return piece.Queen()
-    if char == 'b': return piece.Bishop()
-    if char == 'n': return piece.Knight()
-    if char == 'r': return piece.Rook()
-    if char == 'p': return piece.Pawn()
-
-
-class ChessBoard:
-    initialFEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1'
-    board = positions_from_FEN(initialFEN)
+class ChessBoardUI:
+    tile_size = 70
+    layout = FloatLayout()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.layout = layout
+        self.gameEng = GameEngine()
+        self.board = self.gameEng.board
 
         """drawing board with pieces"""
         for i in range(8):
             for j in range(8):
                 color = 'square brown light' if (i + j) % 2 == 0 else 'square brown dark'
-                layout.add_widget(Image(source=f'128h/{color}_png_128px.png', pos=(tile_size*j, tile_size*i),
+                self.layout.add_widget(Image(source=f'128h/{color}_png_128px.png',
+                                        pos=(self.tile_size*j, self.tile_size*i),
                                         size_hint=(0.125, 0.125)))
+
         self.draw_pieces()
 
     def draw_pieces(self):
         for i in range(8):
             for j in range(8):
-                filePiece = self.board[i][j]
+                if self.board[i][j] != '-':
+                    currPiece = self.board[i][j]
 
-                if filePiece != '-':
-                    currPiece = get_piece(filePiece.lower())
-                    pieceColor = 'w' if filePiece.islower() else 'b'
-#
-                    srcImg = f'128h/{pieceColor}_{currPiece}_png_128px.png'
-                    currPiece.source = srcImg
-                    currPiece.pos = (tile_size * j, tile_size * i)
-                    layout.add_widget(currPiece)
+                    currPiece.source = f'128h/{currPiece.get_piece_color()}_{currPiece}_png_128px.png'
+                    currPiece.pos = (self.tile_size * j, self.tile_size * i)
 
-                    blacks.append(currPiece) if pieceColor == 'b' else whites.append(currPiece)
-                    pieces.append(currPiece)
-        print(blacks)
+                    self.layout.add_widget(currPiece)
 
 
 class ChessApp(App):
     def build(self):
-        return ChessBoard().layout
+        return ChessBoardUI().layout
 
 
 if __name__ == "__main__":
