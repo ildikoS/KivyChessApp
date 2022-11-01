@@ -32,6 +32,9 @@ class GameEngine:
     whites = []
 
     def __init__(self):
+        self.player1 = None
+        self.player2 = None
+
         for i in range(8):
             for j in range(8):
                 currPiece = self.board[i][j]
@@ -42,11 +45,11 @@ class GameEngine:
 
                     self.board[i][j] = f'{pColor}|{currPiece}'
 
-                    #self.blacks.append(self.board[i][j]) \
-                    #    if self.board[i][j].get_piece_color() == 'b' else self.whites.append(self.board[i][j])
+                    self.blacks.append(self.board[i][j]) \
+                        if pColor == 'b' else self.whites.append(self.board[i][j])
         print(self.board)
-    player1 = Player(blacks)
-    player2 = Player(whites)
+        self.player1 = Player(self.blacks)
+        self.player2 = Player(self.whites)
 
 
 tile_size = 70
@@ -55,6 +58,7 @@ tile_size = 70
 class DragPiece(DragBehavior, Image):
     def __init__(self, **kwargs):
         super(DragPiece, self).__init__(**kwargs)
+        self.player = None
         self.board = None
         self.engine = None
         self.downX, self.downY = None, None
@@ -64,16 +68,23 @@ class DragPiece(DragBehavior, Image):
         self.engine = engine
         self.board = self.engine.board
 
+        self.player = self.engine.player1 if self.get_piece_color() is 'b' else self.engine.player2
+        self.enemy = self.engine.player2 if self.player == self.engine.player1 else self.engine.player1
+
     def on_touch_up(self, touch):
         super(DragPiece, self).on_touch_up(touch)
 
         tx, ty = round(self.get_center_x()), round(self.get_center_y())
-        centerX = (tx // tile_size) * tile_size + (tile_size // 2)
-        centerY = (ty // tile_size) * tile_size + (tile_size // 2)
-        self.set_center_x(centerX)
-        self.set_center_y(centerY)
+        centerX = (tx // tile_size)
+        centerY = (ty // tile_size)
+        uiTile = (tile_size // 2)
+        self.set_center_x(centerX * tile_size + uiTile)
+        self.set_center_y(centerY * tile_size + uiTile)
 
-
+        if self.collide_point(*touch.pos):
+            self.board[self.downY//tile_size][self.downX//tile_size] = '-'
+            self.board[centerY][centerX] = self
+            print(self.board)
 
         #for idx, enemyPiece in enumerate(self.engine.player1.pieces):
         #    if self.collide_point(*touch.pos) \
@@ -136,15 +147,18 @@ class King(DragPiece):
         return "king"
 
     availableMoves = []
+
     def generate_moves(self, startX, startY):
+        #player = self.engine.player1 if self.get_piece_color() is 'b' else self.engine.player2
         # tuples = [(-1, -1), (-1, 0), (0, -1), (1, 1), (1, 0), (0, 1), (-1, 1), (1, -1)]
         self.availableMoves = []
         for i in range(-1, 2):
             for j in range(-1, 2):
                 targetX, targetY = startX + i, startY + j
-                #if self.board[targetX][targetY] == '-' or self.board[targetX][targetY] == any(self.engine.player2.pieces):
-                if 0 <= targetX < 8 and 0 <= targetY < 8 and self.board[targetX][targetY] == '-':
+                if 0 <= targetX < 8 and 0 <= targetY < 8 \
+                        and self.board[targetY][targetX] not in self.player.pieces:
                     self.availableMoves.append((targetX, targetY))
+                    #print(self.board[targetY][targetX])
 
 
 class Queen(DragPiece):
@@ -201,22 +215,25 @@ class Pawn(DragPiece):
     def __str__(self):
         return "pawn"
 
-    #def generate_moves(self, startX, startY):
-    #    # tuples = [(-1, -1), (-1, 0), (0, -1), (1, 1), (1, 0), (0, 1), (-1, 1), (1, -1)]
-    #    availableMoves = []
+    availableMoves = []
 
-        """
-        toMove = 1 if alreadyMoved else 2
+    def generate_moves(self, startX, startY):
+        # tuples = [(-1, -1), (-1, 0), (0, -1), (1, 1), (1, 0), (0, 1), (-1, 1), (1, -1)]
+        self.availableMoves = []
+
+        toMove = 2 #if alreadyMoved else 3
 
         for i in range(toMove):
             if self.get_piece_color() == 'w':
                 targetY = startY + toMove
-                if board[startX-1][startY+1] == any(enemy.pieces):
-                    targetX = startX-1
-                    availableMoves.append((targetX, startY+1))
-                if board[startX+1][startY+1] == any(enemy.pieces):
-                    targetX = startX+1
-                    availableMoves.append((targetX, startY+1))
+                targetX = startX
+                if self.board[startX-1][startY+1] in self.enemy.pieces:
+                    targetX -= 1
+                    self.availableMoves.append((targetX, startY+1))
+                if self.board[startX+1][startY+1] in self.enemy.pieces:
+                    targetX += 1
+                    self.availableMoves.append((targetX, startY+1))
 
-            if board[startX][targetY] == empty:
-                availableMoves.append((targetX, targetY))"""
+                if self.board[startX][targetY] == '-':
+                    self.availableMoves.append((targetX, targetY))
+                print(self.board[startX][targetY]) #IT SHOULD BE FIXED  !!!!!!!!!!!!!!!!!!!!!!!!!!!!
