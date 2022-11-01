@@ -3,7 +3,7 @@ from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
 
-from piece import GameEngine
+from piece import GameEngine, get_piece
 
 Config.set('graphics', 'width', '560')
 Config.set('graphics', 'height', '560')
@@ -33,10 +33,13 @@ class ChessBoardUI:
         for i in range(8):
             for j in range(8):
                 if self.board[i][j] != '-':
-                    currPiece = self.board[i][j]
-
+                    currPiece = get_piece(self.board[i][j].split('|')[1].lower())
+                    print(currPiece)
+                    currPiece.set_piece_color(self.board[i][j].split('|')[0])
                     currPiece.source = f'128h/{currPiece.get_piece_color()}_{currPiece}_png_128px.png'
                     currPiece.pos = (self.tile_size * j, self.tile_size * i)
+
+                    currPiece.set_engine(self.gameEng)
 
                     self.layout.add_widget(currPiece)
 
