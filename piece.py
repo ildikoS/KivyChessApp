@@ -1,19 +1,9 @@
+from kivy.graphics import Color, Rectangle
 from kivy.uix.behaviors import DragBehavior
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
 
 from gameEngine import positions_from_FEN, Player
-
-
-# def generate_moves(startX, startY):
-#    #tuples = [(-1, -1), (-1, 0), (0, -1), (1, 1), (1, 0), (0, 1), (-1, 1), (1, -1)]
-#    availableMoves = []
-#
-#    for i in range(-1, 1):
-#        for j in range(-1, 1):
-#            targetX, targetY = startX + i, startY + j
-#            if board[targetX][targetY] == empty or board[targetX][targetY] == any(enemy.pieces):
-#                availableMoves.append((targetX, targetY))
 
 
 def get_piece(char):
@@ -54,7 +44,6 @@ class GameEngine:
 
 tile_size = 70
 
-
 class DragPiece(DragBehavior, Image):
     def __init__(self, **kwargs):
         super(DragPiece, self).__init__(**kwargs)
@@ -68,7 +57,7 @@ class DragPiece(DragBehavior, Image):
         self.engine = engine
         self.board = self.engine.board
 
-        self.player = self.engine.player1 if self.get_piece_color() is 'b' else self.engine.player2
+        self.player = self.engine.player1 if self.get_piece_color() == 'b' else self.engine.player2
         self.enemy = self.engine.player2 if self.player == self.engine.player1 else self.engine.player1
 
     def on_touch_up(self, touch):
@@ -82,9 +71,10 @@ class DragPiece(DragBehavior, Image):
         self.set_center_y(centerY * tile_size + uiTile)
 
         if self.collide_point(*touch.pos):
-            self.board[self.downY//tile_size][self.downX//tile_size] = '-'
-            self.board[centerY][centerX] = self
+            self.board[self.downX//tile_size][self.downY//tile_size] = '-'
+            self.board[centerX][centerY] = self
             print(self.board)
+
 
         #for idx, enemyPiece in enumerate(self.engine.player1.pieces):
         #    if self.collide_point(*touch.pos) \
@@ -109,24 +99,20 @@ class DragPiece(DragBehavior, Image):
             self.generate_moves(self.downX//tile_size, self.downY//tile_size)
             print(self.availableMoves)
 
+            for move in self.availableMoves:
+                with self.canvas.before:
+                    Color(0.1, 0.8, 0.1, 0.4)
+                    Rectangle(pos=(move[0]*tile_size, move[1]*tile_size),
+                              size=(tile_size, tile_size))
+
+    def isInside(self, x, y):
+        return 0 <= x < 8 and 0 <= y < 8
+
     def set_piece_color(self, color):
         self.pieceColor = color
 
     def get_piece_color(self):
         return self.pieceColor
-
-    #availableMoves = []
-
-    #def generate_moves(self, startX, startY):
-    #    # tuples = [(-1, -1), (-1, 0), (0, -1), (1, 1), (1, 0), (0, 1), (-1, 1), (1, -1)]
-    #    self.availableMoves = []
-#
-    #    print(self.board)
-    #    for i in range(-1, 1):
-    #        for j in range(-1, 1):
-    #            targetX, targetY = startX + i, startY + j
-    #            #if self.board[targetX][targetY] == '-': #or self.board[targetX][targetY] == any(self.engine.player2.pieces):
-    #            self.availableMoves.append((targetX, targetY))
 
 
 # class Piece(Image):
@@ -149,14 +135,12 @@ class King(DragPiece):
     availableMoves = []
 
     def generate_moves(self, startX, startY):
-        #player = self.engine.player1 if self.get_piece_color() is 'b' else self.engine.player2
         # tuples = [(-1, -1), (-1, 0), (0, -1), (1, 1), (1, 0), (0, 1), (-1, 1), (1, -1)]
         self.availableMoves = []
         for i in range(-1, 2):
             for j in range(-1, 2):
                 targetX, targetY = startX + i, startY + j
-                if 0 <= targetX < 8 and 0 <= targetY < 8 \
-                        and self.board[targetY][targetX] not in self.player.pieces:
+                if self.isInside(targetX, targetY) and self.board[targetX][targetY] not in self.player.pieces:
                     self.availableMoves.append((targetX, targetY))
                     #print(self.board[targetY][targetX])
 
@@ -164,6 +148,8 @@ class King(DragPiece):
 class Queen(DragPiece):
     def __str__(self):
         return "queen"
+
+    availableMoves = []
 
     def generate_moves(self, startX, startY):
         # tuples = [(-1, -1), (-1, 0), (0, -1), (1, 1), (1, 0), (0, 1), (-1, 1), (1, -1)]
@@ -182,6 +168,8 @@ class Bishop(DragPiece):
     def __str__(self):
         return "bishop"
 
+    availableMoves = []
+
     def generate_moves(self, startX, startY):
         # tuples = [(-1, -1), (-1, 0), (0, -1), (1, 1), (1, 0), (0, 1), (-1, 1), (1, -1)]
         availableMoves = []
@@ -193,16 +181,24 @@ class Knight(DragPiece):
     def __str__(self):
         return "knight"
 
-    def generate_moves(self, startX, startY):
-        # tuples = [(-1, -1), (-1, 0), (0, -1), (1, 1), (1, 0), (0, 1), (-1, 1), (1, -1)]
-        availableMoves = []
+    availableMoves = []
 
-        pass
+    def generate_moves(self, startX, startY):
+        tuples = [(-2, -1), (-2, 1), (2, -1), (2, 1), (-1, -2), (1, -2), (-1, 2), (1, 2)]
+
+        self.availableMoves = []
+        for x, y in tuples:
+            targetX, targetY = startX + x, startY + y
+            if self.isInside(targetX, targetY) and self.board[targetX][targetY] not in self.player.pieces:
+                self.availableMoves.append((targetX, targetY))
+                # print(self.board[targetY][targetX])
 
 
 class Rook(DragPiece):
     def __str__(self):
         return "rook"
+
+    availableMoves = []
 
     def generate_moves(self, startX, startY):
         # tuples = [(-1, -1), (-1, 0), (0, -1), (1, 1), (1, 0), (0, 1), (-1, 1), (1, -1)]
