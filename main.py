@@ -12,19 +12,20 @@ Config.set('graphics', 'height', '560')
 
 class ChessBoardUI:
     tile_size = 70
-    layout = FloatLayout()
+    #layout = pieceLayout #FloatLayout()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.gameEng = GameEngine()
         self.board = self.gameEng.board
+        self.layout = self.gameEng.layout
 
         """drawing board with pieces"""
         for i in range(8):
             for j in range(8):
-                color = 'square brown light' if (i + j) % 2 == 0 else 'square brown dark'
+                color = 'square brown dark' if (i + j) % 2 == 0 else 'square brown light'
                 self.layout.add_widget(Image(source=f'128h/{color}_png_128px.png',
-                                        pos=(self.tile_size*j, self.tile_size*i),
+                                        pos=(self.tile_size*i, self.tile_size*j),
                                         size_hint=(0.125, 0.125)))
 
         self.draw_pieces()
@@ -37,7 +38,7 @@ class ChessBoardUI:
                     print(currPiece)
                     currPiece.set_piece_color(self.board[i][j].split('|')[0])
                     currPiece.source = f'128h/{currPiece.get_piece_color()}_{currPiece}_png_128px.png'
-                    currPiece.pos = (self.tile_size * j, self.tile_size * i)
+                    currPiece.pos = (self.tile_size * i, self.tile_size * j)
 
                     currPiece.set_engine(self.gameEng)
 
