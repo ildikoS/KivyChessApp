@@ -2,6 +2,7 @@ from kivy.graphics import Color, Ellipse
 from kivy.uix.behaviors import DragBehavior
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
+from kivy.uix.label import Label
 
 from gameEngine import positions_from_FEN, Player
 
@@ -86,27 +87,15 @@ class DragPiece(DragBehavior, Image):
             self.board[centerX][centerY] = self
             print(self.board)
 
+            #for enemyPiece in self.enemy.pieces:
+            #    if self.collide_point(enemyPiece.get_center_x(), enemyPiece.get_center_y()):
+            #    print(f"{enemyPiece} was removed")
+            #    print("---------")
+            #    self.enemy.pieces.remove(enemyPiece)
+            #    self.pieceLayout.remove_widget(enemyPiece)
+
         for ellipse in self.ellipses:
-            print(ellipse)
-            print(self.canvas.children)
-            self.canvas.children.remove(ellipse)
-        self.canvas.ask_update()
-
-        # for idx, enemyPiece in enumerate(self.engine.player1.pieces):
-        #    if self.collide_point(*touch.pos) \
-        #            and self.collide_point(enemyPiece.get_center_x(), enemyPiece.get_center_y()):
-        #        print(f"{enemyPiece} was removed")
-        #        print("---------")
-        #        self.engine.player1.pieces.remove(enemyPiece)
-        #        self.layout.remove_widget(enemyPiece)
-
-    #
-    # if self.collide_point(*touch.pos):
-    #    if centerX != self.downX or centerY != self.downY:
-    #        print("moved away from prev pos")
-    #        # enemy = player1 if enemy == player2 else player2
-    #    print(f"centerX={centerX} and downX={self.downX}")
-    #    print(f"centerY={centerY} and downY={self.downY}")
+            self.pieceLayout.remove_widget(ellipse)
 
     def on_touch_down(self, touch):
         super(DragPiece, self).on_touch_down(touch)
@@ -116,10 +105,10 @@ class DragPiece(DragBehavior, Image):
             self.generate_moves(self.downX // tile_size, self.downY // tile_size)
             print(self.availableMoves)
 
-        for move in self.availableMoves:
-            with self.canvas:
-                Color(0.1, 0.8, 0.1, 0.4)
-                ellipse = Ellipse(pos=(move[0]*tile_size, move[1]*tile_size), size=(tile_size, tile_size))
+            for move in self.availableMoves:
+                with self.pieceLayout.canvas.before:
+                    ellipse = Label(text="X", pos=(move[0]*tile_size, move[1]*tile_size), size_hint=(0.125, 0.125))
+                self.ellipses.append(ellipse)
                 self.pieceLayout.add_widget(ellipse)
 
     def isInside(self, x, y):
@@ -173,6 +162,19 @@ class Queen(DragPiece):
 
         self.availableMoves = []
 
+        for i in range(8):
+            self.genSlidingMove(startX + i, startY + i)
+            self.genSlidingMove(startX + i, startY - i)
+
+            self.genSlidingMove(startX - i, startY + i)
+            self.genSlidingMove(startX - i, startY - i)
+
+            self.genSlidingMove(startX + i, startY)
+            self.genSlidingMove(startX, startY + i)
+
+            self.genSlidingMove(startX - i, startY)
+            self.genSlidingMove(startX, startY - i)
+
 
 class Knight(DragPiece):
     def __str__(self):
@@ -224,10 +226,10 @@ class Pawn(DragPiece):
         return "pawn"
 
     def generate_moves(self, startX, startY):
-        # tuples = [(-1, -1), (-1, 0), (0, -1), (1, 1), (1, 0), (0, 1), (-1, 1), (1, -1)]
-        self.availableMoves = []
+        #tuples = [(-1, -1), (-1, 0), (0, -1), (1, 1), (1, 0), (0, 1), (-1, 1), (1, -1)]
+        self.availableMoves = [(startX+1, startY+1)]
 
-        toMove = 2  # if alreadyMoved else 3
+        """toMove = 2  # if alreadyMoved else 3
 
         for i in range(toMove):
             if self.get_piece_color() == 'w':
@@ -242,4 +244,4 @@ class Pawn(DragPiece):
 
                 if self.board[startX][targetY] == '-':
                     self.availableMoves.append((targetX, targetY))
-                print(self.board[startX][targetY])  # IT SHOULD BE FIXED  !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                print(self.board[startX][targetY])  # IT SHOULD BE FIXED  !!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
