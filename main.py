@@ -3,7 +3,7 @@ from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
 
-from piece import GameEngine, get_piece
+from gameEngine import GameEngine
 
 Config.set('graphics', 'width', '560')
 Config.set('graphics', 'height', '560')
@@ -17,7 +17,7 @@ class ChessBoardUI:
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.gameEng = GameEngine()
-        self.board = self.gameEng.board
+        self.board = None #self.gameEng.board
         self.layout = self.gameEng.layout
 
         """drawing board with pieces"""
@@ -31,12 +31,18 @@ class ChessBoardUI:
         self.draw_pieces()
 
     def draw_pieces(self):
+        self.gameEng.createBoard()
+        self.board = self.gameEng.board
+
         for i in range(8):
             for j in range(8):
                 if self.board[i][j] != '-':
-                    currPiece = get_piece(self.board[i][j].split('|')[1].lower())
+                    #currPiece = get_piece(self.board[i][j].split('|')[1].lower())
                     #print(currPiece)
-                    currPiece.set_piece_color(self.board[i][j].split('|')[0])
+                    #currPiece.set_piece_color(self.board[i][j].split('|')[0])
+
+                    currPiece = self.board[i][j]
+
                     currPiece.source = f'128h/{currPiece.get_piece_color()}_{currPiece}_png_128px.png'
                     currPiece.pos = (self.tile_size * i, self.tile_size * j)
 

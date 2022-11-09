@@ -1,49 +1,6 @@
-from kivy.graphics import Color, Ellipse
 from kivy.uix.behaviors import DragBehavior
-from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
 from kivy.uix.label import Label
-
-from gameEngine import positions_from_FEN, Player
-
-
-def get_piece(char):
-    if char == 'k': return King()
-    if char == 'q': return Queen()
-    if char == 'b': return Bishop()
-    if char == 'n': return Knight()
-    if char == 'r': return Rook()
-    if char == 'p': return Pawn()
-
-
-class GameEngine:
-    initialFEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1'
-    board = positions_from_FEN(initialFEN)
-    blacks = []
-    whites = []
-
-    def __init__(self):
-        self.player1 = None
-        self.player2 = None
-
-        self.layout = FloatLayout()
-
-        for i in range(8):
-            for j in range(8):
-                currPiece = self.board[i][j]
-                if currPiece != '-':
-                    pColor = 'w' if currPiece.islower() else 'b'
-                    # self.board[i][j] = get_piece(currPiece.lower())
-                    # self.board[i][j].set_piece_color(pColor)
-
-                    self.board[i][j] = f'{pColor}|{currPiece}'
-
-                    self.blacks.append(self.board[i][j]) \
-                        if pColor == 'b' else self.whites.append(self.board[i][j])
-        print(self.board)
-        self.player1 = Player(self.blacks)
-        self.player2 = Player(self.whites)
-
 
 tile_size = 70
 
@@ -51,7 +8,7 @@ tile_size = 70
 class DragPiece(DragBehavior, Image):
     def __init__(self, **kwargs):
         super(DragPiece, self).__init__(**kwargs)
-        self.ellipses = []
+        self.outlines = []
         self.player = None
         self.board = None
         self.engine = None
@@ -85,17 +42,19 @@ class DragPiece(DragBehavior, Image):
         if self.collide_point(*touch.pos):
             self.board[self.downX // tile_size][self.downY // tile_size] = '-'
             self.board[centerX][centerY] = self
-            print(self.board)
+            #print(self.board)
 
-            #for enemyPiece in self.enemy.pieces:
-            #    if self.collide_point(enemyPiece.get_center_x(), enemyPiece.get_center_y()):
-            #    print(f"{enemyPiece} was removed")
-            #    print("---------")
-            #    self.enemy.pieces.remove(enemyPiece)
-            #    self.pieceLayout.remove_widget(enemyPiece)
+        #for idx, enemyPiece in enumerate(self.enemy.pieces):
+        #    #print(f"{idx}: {enemyPiece.get_center_x}")
+        #    if self.collide_point(*touch.pos) and self.collide_point(enemyPiece.get_center_x(), enemyPiece.get_center_y()):
+        #        print(self.enemy)
+        #        print(f"{enemyPiece} was removed")
+        #        print("---------")
+        #        self.enemy.pieces.remove(enemyPiece)
+        #        self.pieceLayout.remove_widget(enemyPiece)
 
-        for ellipse in self.ellipses:
-            self.pieceLayout.remove_widget(ellipse)
+        for outline in self.outlines:
+            self.pieceLayout.remove_widget(outline)
 
     def on_touch_down(self, touch):
         super(DragPiece, self).on_touch_down(touch)
@@ -106,10 +65,9 @@ class DragPiece(DragBehavior, Image):
             print(self.availableMoves)
 
             for move in self.availableMoves:
-                with self.pieceLayout.canvas.before:
-                    ellipse = Label(text="X", pos=(move[0]*tile_size, move[1]*tile_size), size_hint=(0.125, 0.125))
-                self.ellipses.append(ellipse)
-                self.pieceLayout.add_widget(ellipse)
+                uiOutline = Image(source='128h/outline_circ.png', pos=(move[0]*tile_size, move[1]*tile_size), size_hint=(0.125, 0.125))
+                self.outlines.append(uiOutline)
+                self.pieceLayout.add_widget(uiOutline)
 
     def isInside(self, x, y):
         return 0 <= x < 8 and 0 <= y < 8
