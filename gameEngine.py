@@ -47,16 +47,41 @@ class GameEngine:
             for j in range(8):
                 currPiece = self.board[i][j]
                 if currPiece != '-':
-                    pColor = 'w' if currPiece.islower() else 'b'
                     self.board[i][j] = get_piece(currPiece.lower())
-                    self.board[i][j].set_piece_color(pColor)
-
-                    #self.board[i][j] = f'{pColor}|{currPiece}'
+                    self.board[i][j].set_piece_color('w' if currPiece.islower() else 'b')
+                    self.board[i][j].set_coords(i, j)
 
                     self.blacks.append(self.board[i][j]) \
-                        if pColor == 'b' else self.whites.append(self.board[i][j])
+                        if self.board[i][j].get_piece_color() == 'b' else self.whites.append(self.board[i][j])
         self.player1 = Player(self.blacks)
         self.player2 = Player(self.whites)
 
         return self.board
+
+    def checkCollision(self, enemy, playerPiece):
+        for enemyPiece in enemy.pieces:
+            if enemyPiece.coordinates == playerPiece.coordinates:
+                print("---------")
+                print(f"{enemyPiece} was removed")
+                print("---------")
+                enemy.pieces.remove(enemyPiece)
+                self.layout.remove_widget(enemyPiece)
+                return True
+        return False
+
+    def is_checked(self, enemy, playerPiece):
+        original_pos = playerPiece.coordinates
+        for move in playerPiece.availableMoves:
+            self.make_move(move, playerPiece)
+            for enemyPiece in enemy.pieces:
+                #if king.coordinates in enemyPiece.availableMoves:
+                    playerPiece.availableMoves.remove(move)
+                    continue
+            self.make_move(original_pos, playerPiece)
+
+    def make_move(self, move, argPiece):
+        x, y = argPiece.coordinates
+        self.board[x][y] = "-"
+        x, y = move
+        self.board[x][y] = argPiece
 
