@@ -71,6 +71,8 @@ class GameEngine:
 
     def is_checked(self, enemy, playerPiece):
         original_pos = playerPiece.coordinates
+        playerPiece.generate_moves(original_pos[0], original_pos[1])
+
         for move in playerPiece.availableMoves:
             self.make_move(move, playerPiece)
             for enemyPiece in enemy.pieces:
@@ -84,4 +86,5 @@ class GameEngine:
         self.board[x][y] = "-"
         x, y = move
         self.board[x][y] = argPiece
+        argPiece.set_coords(x, y)
 
