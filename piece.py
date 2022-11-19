@@ -19,10 +19,19 @@ class Piece:
     def isInside(self, x, y):
         return 0 <= x < 8 and 0 <= y < 8
 
-    def genSlidingMove(self, X, Y):
-        if self.isInside(X, Y) and self.board[X][Y] not in self.player.pieces:
-            self.availableMoves.append((X, Y))
-        # return self.board[X][Y] in self.enemy.pieces
+    def genSlidingMove(self, dirX, dirY):
+        for i in range(1, 8):
+            X = self.coordinates[0] + (i*dirX)
+            Y = self.coordinates[1] + (i*dirY)
+
+            if self.isInside(X, Y):
+                if self.board[X][Y] in self.player.pieces:
+                    break
+
+                self.availableMoves.append((X, Y))
+
+                if self.board[X][Y] in self.enemy.pieces:
+                    break
 
     # getters, setters
     def set_piece_color(self, color):
@@ -73,7 +82,6 @@ class DragPiece(DragBehavior, Image, Piece):
 
         if self.grabbed:
             self.engine.checkCollision(self.enemy, self)
-
             self.grabbed = False
 
         # if checkCollision(self.enemy, self) != None:
@@ -106,14 +114,12 @@ class King(DragPiece):
         return "king"
 
     def generate_moves(self, startX, startY):
-        # tuples = [(-1, -1), (-1, 0), (0, -1), (1, 1), (1, 0), (0, 1), (-1, 1), (1, -1)]
         self.availableMoves = []
         for i in range(-1, 2):
             for j in range(-1, 2):
                 targetX, targetY = startX + i, startY + j
                 if self.isInside(targetX, targetY) and self.board[targetX][targetY] not in self.player.pieces:
                     self.availableMoves.append((targetX, targetY))
-                    # print(self.board[targetY][targetX])
 
         # Castling
         #if not self.alreadyMoved and self.board[startX][startY+2] == "-":
@@ -127,18 +133,18 @@ class Queen(DragPiece):
     def generate_moves(self, startX, startY):
         self.availableMoves = []
 
-        for i in range(1, 8):
-            self.genSlidingMove(startX + i, startY + i)
-            self.genSlidingMove(startX + i, startY - i)
+        self.genSlidingMove(1, 1)
+        self.genSlidingMove(1, -1)
 
-            self.genSlidingMove(startX - i, startY + i)
-            self.genSlidingMove(startX - i, startY - i)
+        self.genSlidingMove(-1, 1)
+        self.genSlidingMove(-1, -1)
 
-            self.genSlidingMove(startX + i, startY)
-            self.genSlidingMove(startX, startY + i)
+        self.genSlidingMove(1, 0)
+        self.genSlidingMove(0, 1)
 
-            self.genSlidingMove(startX - i, startY)
-            self.genSlidingMove(startX, startY - i)
+        self.genSlidingMove(-1, 0)
+        self.genSlidingMove(0, -1)
+
 
 
 class Knight(DragPiece):
@@ -153,7 +159,6 @@ class Knight(DragPiece):
             targetX, targetY = startX + x, startY + y
             if self.isInside(targetX, targetY) and self.board[targetX][targetY] not in self.player.pieces:
                 self.availableMoves.append((targetX, targetY))
-                # print(self.board[targetY][targetX])
 
 
 class Bishop(DragPiece):  # futó
@@ -163,12 +168,11 @@ class Bishop(DragPiece):  # futó
     def generate_moves(self, startX, startY):
         self.availableMoves = []
 
-        for i in range(1, 8):
-            self.genSlidingMove(startX + i, startY + i)
-            self.genSlidingMove(startX + i, startY - i)
+        self.genSlidingMove(1, 1)
+        self.genSlidingMove(1, -1)
 
-            self.genSlidingMove(startX - i, startY + i)
-            self.genSlidingMove(startX - i, startY - i)
+        self.genSlidingMove(-1, 1)
+        self.genSlidingMove(-1, -1)
 
 
 class Rook(DragPiece):  # bástya
@@ -178,12 +182,11 @@ class Rook(DragPiece):  # bástya
     def generate_moves(self, startX, startY):
         self.availableMoves = []
 
-        for i in range(1, 8):
-            self.genSlidingMove(startX + i, startY)
-            self.genSlidingMove(startX, startY + i)
+        self.genSlidingMove(1, 0)
+        self.genSlidingMove(0, 1)
 
-            self.genSlidingMove(startX - i, startY)
-            self.genSlidingMove(startX, startY - i)
+        self.genSlidingMove(-1, 0)
+        self.genSlidingMove(0, -1)
 
 
 class Pawn(DragPiece):
@@ -210,5 +213,5 @@ class Pawn(DragPiece):
                 self.genCrossMove(startX - 1, startY - 1)
 
     def genCrossMove(self, targetX, targetY):
-        if self.board[targetX][targetY] in self.enemy.pieces:
+        if self.isInside(targetX, targetY) and self.board[targetX][targetY] in self.enemy.pieces:
             self.availableMoves.append((targetX, targetY))

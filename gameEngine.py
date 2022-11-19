@@ -76,7 +76,7 @@ class GameEngine:
         for move in playerPiece.availableMoves:
             self.make_move(move, playerPiece)
             for enemyPiece in enemy.pieces:
-                #if king.coordinates in enemyPiece.availableMoves:
+                if king.coordinates in enemyPiece.availableMoves: #külön fv-ben, vagy külön változóként
                     playerPiece.availableMoves.remove(move)
                     continue
             self.make_move(original_pos, playerPiece)
