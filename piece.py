@@ -72,9 +72,9 @@ class DragPiece(DragBehavior, Image, Piece):
         if (centerX, centerY) in self.availableMoves:
             self.set_center_x(centerX * tile_size + uiTile)
             self.set_center_y(centerY * tile_size + uiTile)
-
+#
             self.engine.make_move((centerX, centerY), self)
-
+#
             self.is_already_moved(True)
         else:
             self.set_center_x(self.coordinates[0] * tile_size + uiTile)
@@ -84,9 +84,6 @@ class DragPiece(DragBehavior, Image, Piece):
             self.engine.checkCollision(self.enemy, self)
             self.grabbed = False
 
-        # if checkCollision(self.enemy, self) != None:
-        #    self.pieceLayout.remove_widget(enemyPiece)
-
         for outline in self.outlines:
             self.pieceLayout.remove_widget(outline)
 
@@ -94,8 +91,8 @@ class DragPiece(DragBehavior, Image, Piece):
         super(DragPiece, self).on_touch_down(touch)
 
         if self.collide_point(*touch.pos):
-            #self.is_checked()
             self.generate_moves(self.coordinates[0], self.coordinates[1])
+            #self.engine.is_checked(self, self.enemy)
             print(self.availableMoves)
             self.grabbed = True
 

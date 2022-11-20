@@ -38,6 +38,7 @@ class GameEngine:
     whites = []
 
     def __init__(self):
+        self.kingSquare = None
         self.player1 = None
         self.player2 = None
         self.layout = FloatLayout()
@@ -69,14 +70,16 @@ class GameEngine:
                 return True
         return False
 
-    def is_checked(self, enemy, playerPiece):
+    def is_checked(self, playerPiece, enemy):
         original_pos = playerPiece.coordinates
         playerPiece.generate_moves(original_pos[0], original_pos[1])
 
         for move in playerPiece.availableMoves:
             self.make_move(move, playerPiece)
             for enemyPiece in enemy.pieces:
-                if king.coordinates in enemyPiece.availableMoves: #külön fv-ben, vagy külön változóként
+                enemyPiece.generate_moves(enemyPiece.coordinates[0], enemyPiece.coordinates[1])
+                if self.kingSquare in enemyPiece.availableMoves:
+                    print(f"{enemyPiece} - {enemyPiece.availableMoves}")
                     playerPiece.availableMoves.remove(move)
                     continue
             self.make_move(original_pos, playerPiece)
@@ -87,4 +90,12 @@ class GameEngine:
         x, y = move
         self.board[x][y] = argPiece
         argPiece.set_coords(x, y)
+        self.get_king_square(argPiece.get_piece_color())
 
+    def get_king_square(self, pieceColor):
+        for i in range(8):
+            for j in range(8):
+                if type(self.board[i][j]) == piece.King and self.board[i][j].get_piece_color() == pieceColor:
+                    self.kingSquare = (i, j)
+                    #print(f"FOUND KING {self.kingSquare}")
+                    break
