@@ -1,3 +1,5 @@
+import random
+
 from kivy.uix.behaviors import DragBehavior
 from kivy.uix.image import Image
 from kivy.uix.label import Label
@@ -55,6 +57,25 @@ class Piece:
     def is_already_moved(self, moved):
         self.alreadyMoved = moved
 
+    def computer_move(self):
+        """
+
+        :return: With a random move of a random enemy piece
+        """
+        randomPiece = random.choice(self.enemy.pieces)
+        randomPiece.generate_moves()
+        print(randomPiece.availableMoves)
+
+        while not randomPiece.availableMoves:
+            randomPiece = random.choice(self.enemy.pieces)
+            randomPiece.generate_moves()
+        randomMove = random.choice(randomPiece.availableMoves)
+        print(f"made a move : {randomPiece} moved to {randomMove}")
+        self.engine.make_move(randomMove, randomPiece)
+        randomPiece.engine.checkCollision(randomPiece.enemy, randomPiece)
+
+        return randomPiece, randomMove
+
 
 class DragPiece(DragBehavior, Image, Piece):
     def __init__(self, **kwargs):
@@ -72,10 +93,15 @@ class DragPiece(DragBehavior, Image, Piece):
         if (centerX, centerY) in self.availableMoves:
             self.set_center_x(centerX * tile_size + uiTile)
             self.set_center_y(centerY * tile_size + uiTile)
-#
+
             self.engine.make_move((centerX, centerY), self)
-#
+
             self.is_already_moved(True)
+
+            if self.grabbed:
+                blackMove = self.computer_move()
+                blackMove[0].set_center_x(blackMove[1][0] * tile_size + uiTile)
+                blackMove[0].set_center_y(blackMove[1][1] * tile_size + uiTile)
         else:
             self.set_center_x(self.coordinates[0] * tile_size + uiTile)
             self.set_center_y(self.coordinates[1] * tile_size + uiTile)
@@ -91,7 +117,7 @@ class DragPiece(DragBehavior, Image, Piece):
         super(DragPiece, self).on_touch_down(touch)
 
         if self.collide_point(*touch.pos):
-            self.generate_moves(self.coordinates[0], self.coordinates[1])
+            self.generate_moves()
             #self.engine.is_checked(self, self.enemy)
             print(self.availableMoves)
             self.grabbed = True
@@ -110,11 +136,11 @@ class King(DragPiece):
     def __str__(self):
         return "king"
 
-    def generate_moves(self, startX, startY):
+    def generate_moves(self):
         self.availableMoves = []
         for i in range(-1, 2):
             for j in range(-1, 2):
-                targetX, targetY = startX + i, startY + j
+                targetX, targetY = self.coordinates[0] + i, self.coordinates[1] + j
                 if self.isInside(targetX, targetY) and self.board[targetX][targetY] not in self.player.pieces:
                     self.availableMoves.append((targetX, targetY))
 
@@ -127,7 +153,7 @@ class Queen(DragPiece):
     def __str__(self):
         return "queen"
 
-    def generate_moves(self, startX, startY):
+    def generate_moves(self):
         self.availableMoves = []
 
         self.genSlidingMove(1, 1)
@@ -148,12 +174,12 @@ class Knight(DragPiece):
     def __str__(self):
         return "knight"
 
-    def generate_moves(self, startX, startY):
+    def generate_moves(self):
         tuples = [(-2, -1), (-2, 1), (2, -1), (2, 1), (-1, -2), (1, -2), (-1, 2), (1, 2)]
 
         self.availableMoves = []
         for x, y in tuples:
-            targetX, targetY = startX + x, startY + y
+            targetX, targetY = self.coordinates[0] + x, self.coordinates[1] + y
             if self.isInside(targetX, targetY) and self.board[targetX][targetY] not in self.player.pieces:
                 self.availableMoves.append((targetX, targetY))
 
@@ -162,7 +188,7 @@ class Bishop(DragPiece):  # futó
     def __str__(self):
         return "bishop"
 
-    def generate_moves(self, startX, startY):
+    def generate_moves(self):
         self.availableMoves = []
 
         self.genSlidingMove(1, 1)
@@ -176,7 +202,7 @@ class Rook(DragPiece):  # bástya
     def __str__(self):
         return "rook"
 
-    def generate_moves(self, startX, startY):
+    def generate_moves(self):
         self.availableMoves = []
 
         self.genSlidingMove(1, 0)
@@ -190,8 +216,10 @@ class Pawn(DragPiece):
     def __str__(self):
         return "pawn"
 
-    def generate_moves(self, startX, startY):
+    def generate_moves(self):
         self.availableMoves = []
+        startX = self.coordinates[0]
+        startY = self.coordinates[1]
 
         toMove = 2 if self.alreadyMoved else 3
 

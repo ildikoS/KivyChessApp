@@ -72,12 +72,12 @@ class GameEngine:
 
     def is_checked(self, playerPiece, enemy):
         original_pos = playerPiece.coordinates
-        playerPiece.generate_moves(original_pos[0], original_pos[1])
+        playerPiece.generate_moves()
 
         for move in playerPiece.availableMoves:
             self.make_move(move, playerPiece)
             for enemyPiece in enemy.pieces:
-                enemyPiece.generate_moves(enemyPiece.coordinates[0], enemyPiece.coordinates[1])
+                enemyPiece.generate_moves()
                 if self.kingSquare in enemyPiece.availableMoves:
                     print(f"{enemyPiece} - {enemyPiece.availableMoves}")
                     playerPiece.availableMoves.remove(move)
@@ -85,6 +85,11 @@ class GameEngine:
             self.make_move(original_pos, playerPiece)
 
     def make_move(self, move, argPiece):
+        """
+        Set the (x, y) square of piece
+        :param move: Tuple with number x, y coordinates
+        :param argPiece: Piece which wanted to be moved to the square
+        """
         x, y = argPiece.coordinates
         self.board[x][y] = "-"
         x, y = move
