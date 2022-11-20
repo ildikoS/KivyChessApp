@@ -88,23 +88,17 @@ class DragPiece(DragBehavior, Image, Piece):
 
         centerX = round(self.get_center_x()) // tile_size
         centerY = round(self.get_center_y()) // tile_size
-        uiTile = (tile_size // 2)
 
         if (centerX, centerY) in self.availableMoves:
-            self.set_center_x(centerX * tile_size + uiTile)
-            self.set_center_y(centerY * tile_size + uiTile)
-
+            self.set_center(self, centerX, centerY)
             self.engine.make_move((centerX, centerY), self)
-
             self.is_already_moved(True)
 
             if self.grabbed:
-                blackMove = self.computer_move()
-                blackMove[0].set_center_x(blackMove[1][0] * tile_size + uiTile)
-                blackMove[0].set_center_y(blackMove[1][1] * tile_size + uiTile)
+                randMove = self.computer_move()
+                self.set_center(randMove[0], randMove[1][0], randMove[1][1])
         else:
-            self.set_center_x(self.coordinates[0] * tile_size + uiTile)
-            self.set_center_y(self.coordinates[1] * tile_size + uiTile)
+            self.set_center(self, self.coordinates[0], self.coordinates[1])
 
         if self.grabbed:
             self.engine.checkCollision(self.enemy, self)
@@ -130,6 +124,11 @@ class DragPiece(DragBehavior, Image, Piece):
                               size_hint=(0.125, 0.125))
             self.outlines.append(uiOutline)
             self.pieceLayout.add_widget(uiOutline)
+
+    def set_center(self, piece, centerX, centerY):
+        uiTile = (tile_size // 2)
+        piece.set_center_x(centerX * tile_size + uiTile)
+        piece.set_center_y(centerY * tile_size + uiTile)
 
 
 class King(DragPiece):
@@ -167,7 +166,6 @@ class Queen(DragPiece):
 
         self.genSlidingMove(-1, 0)
         self.genSlidingMove(0, -1)
-
 
 
 class Knight(DragPiece):
