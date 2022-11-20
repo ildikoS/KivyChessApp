@@ -89,7 +89,7 @@ class DragPiece(DragBehavior, Image, Piece):
         centerX = round(self.get_center_x()) // tile_size
         centerY = round(self.get_center_y()) // tile_size
 
-        if (centerX, centerY) in self.availableMoves:
+        if (centerX, centerY) in self.availableMoves and self.get_piece_color() == "w":
             self.set_center(self, centerX, centerY)
             self.engine.make_move((centerX, centerY), self)
             self.is_already_moved(True)
@@ -110,7 +110,7 @@ class DragPiece(DragBehavior, Image, Piece):
     def on_touch_down(self, touch):
         super(DragPiece, self).on_touch_down(touch)
 
-        if self.collide_point(*touch.pos):
+        if self.collide_point(*touch.pos) and self.get_piece_color() == "w":
             self.generate_moves()
             #self.engine.is_checked(self, self.enemy)
             print(self.availableMoves)
