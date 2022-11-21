@@ -36,6 +36,7 @@ class GameEngine:
     board = positions_from_FEN(initialFEN)
     blacks = []
     whites = []
+    whiteTurn = True
 
     def __init__(self):
         self.kingSquare = None
@@ -104,3 +105,42 @@ class GameEngine:
                     self.kingSquare = (i, j)
                     #print(f"FOUND KING {self.kingSquare}")
                     break
+
+    def evaluate(self):
+        whiteScore = self.count_pieces("w")
+        blackScore = self.count_pieces("b")
+
+        print(whiteScore)
+        print(blackScore)
+
+        eval = whiteScore - blackScore
+
+        perspective = 1 if self.whiteTurn else -1
+        return eval * perspective
+
+    def count_pieces(self, color):
+        pawnValue = 10
+        knightValue = 30
+        bishopValue = 30
+        rookValue = 50
+        queenValue = 90
+        kingValue = 900
+
+        piece_dict = {
+            piece.Pawn: pawnValue,
+            piece.Knight: knightValue,
+            piece.Bishop: bishopValue,
+            piece.Rook: rookValue,
+            piece.Queen: queenValue,
+            piece.King: kingValue
+        }
+
+        valueCount = 0
+        for pieceKey, pieceValue in piece_dict.items():
+            valueCount += self.get_count(pieceKey, color) * pieceValue
+
+        return valueCount
+
+    def get_count(self, key, color):
+        print(sum([len([e for e in rows if type(e) == key and e.get_piece_color() == color]) for rows in self.board]))
+        return sum([len([e for e in rows if type(e) == key and e.get_piece_color() == color]) for rows in self.board])

@@ -92,16 +92,24 @@ class DragPiece(DragBehavior, Image, Piece):
         if (centerX, centerY) in self.availableMoves and self.get_piece_color() == "w":
             self.set_center(self, centerX, centerY)
             self.engine.make_move((centerX, centerY), self)
-            self.is_already_moved(True)
 
             if self.grabbed:
+                #TODO: Refactoring
+                self.engine.whiteTurn = True #if self.get_piece_color() == "b" else False
+                print(self.engine.evaluate())
+
+                self.is_already_moved(True)
+                self.engine.checkCollision(self.enemy, self)
                 randMove = self.computer_move()
+                randMove[0].is_already_moved(True)
                 self.set_center(randMove[0], randMove[1][0], randMove[1][1])
+
+                self.engine.whiteTurn = False #if self.get_piece_color() == "b" else False
+                print(randMove[0].engine.evaluate())
         else:
             self.set_center(self, self.coordinates[0], self.coordinates[1])
 
         if self.grabbed:
-            self.engine.checkCollision(self.enemy, self)
             self.grabbed = False
 
         for outline in self.outlines:
