@@ -231,17 +231,19 @@ class Pawn(DragPiece):
 
         for i in range(1, toMove):
             if self.get_piece_color() == 'w':
-                if self.board[startX + i][startY] == '-':
-                    self.availableMoves.append((startX + i, startY))
-
                 self.genCrossMove(startX + 1, startY + 1)
                 self.genCrossMove(startX + 1, startY - 1)
-            else:
-                if self.board[startX - i][startY] == '-':
-                    self.availableMoves.append((startX - i, startY))
 
+                if self.board[startX + i][startY] != '-':
+                    break
+                self.availableMoves.append((startX + i, startY))
+            else:
                 self.genCrossMove(startX - 1, startY + 1)
                 self.genCrossMove(startX - 1, startY - 1)
+
+                if self.board[startX - i][startY] != '-':
+                    break
+                self.availableMoves.append((startX - i, startY))
 
     def genCrossMove(self, targetX, targetY):
         if self.isInside(targetX, targetY) and self.board[targetX][targetY] in self.enemy.pieces:
