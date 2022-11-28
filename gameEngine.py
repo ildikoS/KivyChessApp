@@ -37,6 +37,7 @@ class GameEngine:
     blacks = []
     whites = []
     whiteTurn = True
+    inf = 999999
 
     def __init__(self):
         self.kingSquare = None
@@ -106,6 +107,43 @@ class GameEngine:
                     #print(f"FOUND KING {self.kingSquare}")
                     break
 
+    def minimax(self, depth, maxPlayer):
+        if depth == 0:
+            return self.evaluate()
+
+        maxEvaluation = -self.inf
+        if maxPlayer:
+            for move in moves:
+                self.make_move()
+                currEvaluation = self.minimax(depth - 1)
+                if currEvaluation > maxEvaluation:
+                    maxEvaluation = max(currEvaluation, maxEvaluation)
+                self.unmake_move()
+            return maxEvaluation
+        else:
+            minEvaluation = self.inf
+            for move in moves:
+                self.make_move()
+                currEvaluation = self.minimax(depth - 1)
+                if currEvaluation < minEvaluation:
+                    minEvaluation = max(currEvaluation, maxEvaluation)
+                self.unmake_move()
+            return minEvaluation
+
+    def negamax(self, depth):
+        if depth == 0:
+            return self.evaluate()
+
+        maxEvaluation = -self.inf
+        for move in moves:
+            self.make_move(move)
+            currEvaluation = -self.negamax(depth - 1)
+            if currEvaluation > maxEvaluation:
+                maxEvaluation = max(currEvaluation, maxEvaluation)
+            self.unmake_move()
+
+        return maxEvaluation
+
     def evaluate(self):
         whiteScore = self.count_pieces("w")
         blackScore = self.count_pieces("b")
@@ -113,10 +151,11 @@ class GameEngine:
         print(whiteScore)
         print(blackScore)
 
-        eval = whiteScore - blackScore
+        evaluation = whiteScore - blackScore
+        # evaluation = materialWeight * (whiteScore - blackScore)
 
-        perspective = 1 if self.whiteTurn else -1
-        return eval * perspective
+        whoToMove = 1 if self.whiteTurn else -1
+        return evaluation * whoToMove
 
     def count_pieces(self, color):
         pawnValue = 10
@@ -142,5 +181,5 @@ class GameEngine:
         return valueCount
 
     def get_count(self, key, color):
-        print(sum([len([e for e in rows if type(e) == key and e.get_piece_color() == color]) for rows in self.board]))
+        #print(sum([len([e for e in rows if type(e) == key and e.get_piece_color() == color]) for rows in self.board]))
         return sum([len([e for e in rows if type(e) == key and e.get_piece_color() == color]) for rows in self.board])
