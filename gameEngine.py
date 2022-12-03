@@ -32,7 +32,7 @@ def positions_from_FEN(fenStr):
 
 
 class GameEngine:
-    initialFEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/ w KQkq - 0 1'
+    initialFEN = 'rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR/ w KQkq - 0 1'
     board = positions_from_FEN(initialFEN)
     blacks = []
     whites = []
@@ -40,6 +40,11 @@ class GameEngine:
     inf = 999999
 
     def __init__(self):
+        self.removingPiece = None
+        self.originalPieceCoords = None
+        self.targetTileCoords = None
+        self.targetTile = None
+        self.originalPiece = None
         self.kingSquare = None
         self.player1 = None
         self.player2 = None
@@ -62,14 +67,18 @@ class GameEngine:
         return self.board
 
     def checkCollision(self, enemy, playerPiece):
+        """
+        Check if 2 pieces are collided or not
+        :param enemy: The other player
+        :param playerPiece: Current player's piece
+        :return: with enemyPiece if found collided piece, otherwise False
+        """
         for enemyPiece in enemy.pieces:
             if enemyPiece.coordinates == playerPiece.coordinates:
                 print("---------")
                 print(f"{enemyPiece} was removed")
                 print("---------")
-                enemy.pieces.remove(enemyPiece)
-                self.layout.remove_widget(enemyPiece)
-                return True
+                return enemyPiece
         return False
 
     def is_checked(self, playerPiece, enemy):
@@ -92,12 +101,35 @@ class GameEngine:
         :param move: Tuple with number x, y coordinates
         :param argPiece: Piece which wanted to be moved to the square
         """
+        self.originalPiece = argPiece
+        self.originalPieceCoords = self.originalPiece.coordinates
         x, y = argPiece.coordinates
         self.board[x][y] = "-"
+
         x, y = move
+        self.targetTile = self.board[x][y]
+        self.targetTileCoords = move
         self.board[x][y] = argPiece
         argPiece.set_coords(x, y)
+        if self.targetTile != "-":
+            self.removingPiece = self.targetTile
+            argPiece.enemy.pieces.remove(self.targetTile)
+            #self.targetTile.player.pieces.remove(self.targetTile)
+        #argPiece.engine.checkCollision(argPiece.enemy, argPiece)
         self.get_king_square(argPiece.get_piece_color())
+
+    def unmake_move(self):
+        originalX, originalY = self.originalPieceCoords
+        self.board[originalX][originalY] = self.originalPiece
+        self.originalPiece.set_coords(originalX, originalY)
+        print(f"{originalX} and {originalY}")
+
+        targetX, targetY = self.targetTileCoords
+        self.board[targetX][targetY] = self.targetTile
+        if self.targetTile != "-":
+            self.targetTile.set_coords(targetX, targetY)
+            self.targetTile.player.pieces.append(self.targetTile)
+
 
     def get_king_square(self, pieceColor):
         for i in range(8):
@@ -107,42 +139,53 @@ class GameEngine:
                     #print(f"FOUND KING {self.kingSquare}")
                     break
 
-    def minimax(self, depth, maxPlayer):
+    def minimax(self, player, depth, maxPlayer):
+        """
+
+        :param player:
+        :param depth:
+        :param maxPlayer:
+        :return:
+        """
         if depth == 0:
             return self.evaluate()
 
         maxEvaluation = -self.inf
         if maxPlayer:
-            for move in moves:
-                self.make_move()
-                currEvaluation = self.minimax(depth - 1)
-                if currEvaluation > maxEvaluation:
-                    maxEvaluation = max(currEvaluation, maxEvaluation)
-                self.unmake_move()
+            for currPiece in player.pieces:
+                for move in currPiece.availableMoves:
+                    self.make_move(move, currPiece)
+                    currEvaluation = self.minimax(player.enemy, depth - 1, False)
+                    if currEvaluation > maxEvaluation:
+                        maxEvaluation = max(currEvaluation, maxEvaluation)
+                    self.unmake_move()
             return maxEvaluation
         else:
             minEvaluation = self.inf
-            for move in moves:
-                self.make_move()
-                currEvaluation = self.minimax(depth - 1)
-                if currEvaluation < minEvaluation:
-                    minEvaluation = max(currEvaluation, maxEvaluation)
-                self.unmake_move()
+            for currPiece in player.pieces:
+                for move in currPiece.availableMoves:
+                    self.make_move(move, currPiece)
+                    currEvaluation = self.minimax(player, depth - 1, True)
+                    if currEvaluation < minEvaluation:
+                        minEvaluation = max(currEvaluation, maxEvaluation)
+                    self.unmake_move()
             return minEvaluation
 
-    def negamax(self, depth):
-        if depth == 0:
-            return self.evaluate()
-
-        maxEvaluation = -self.inf
-        for move in moves:
-            self.make_move(move)
-            currEvaluation = -self.negamax(depth - 1)
-            if currEvaluation > maxEvaluation:
-                maxEvaluation = max(currEvaluation, maxEvaluation)
-            self.unmake_move()
-
-        return maxEvaluation
+    #def negamax(self, player, depth):
+    #    if depth == 0:
+    #        return self.evaluate()
+    #
+    #    maxEvaluation = -self.inf
+    #    for currPiece in player.pieces:
+    #        original_move = currPiece.coordinates
+    #        for move in currPiece.availableMoves:
+    #            self.make_move(move, currPiece)
+    #            currEvaluation = -self.negamax(depth - 1, player)
+    #            if currEvaluation > maxEvaluation:
+    #                maxEvaluation = max(currEvaluation, maxEvaluation)
+    #            self.make_move(original_move, currPiece)
+    #
+    #    return maxEvaluation
 
     def evaluate(self):
         whiteScore = self.count_pieces("w")
@@ -152,7 +195,7 @@ class GameEngine:
         print(blackScore)
 
         evaluation = whiteScore - blackScore
-        # evaluation = materialWeight * (whiteScore - blackScore)
+        # negamax: evaluation = materialWeight * (whiteScore - blackScore)
 
         whoToMove = 1 if self.whiteTurn else -1
         return evaluation * whoToMove

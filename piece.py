@@ -23,8 +23,8 @@ class Piece:
 
     def genSlidingMove(self, dirX, dirY):
         for i in range(1, 8):
-            X = self.coordinates[0] + (i*dirX)
-            Y = self.coordinates[1] + (i*dirY)
+            X = self.coordinates[0] + (i * dirX)
+            Y = self.coordinates[1] + (i * dirY)
 
             if self.isInside(X, Y):
                 if self.board[X][Y] in self.player.pieces:
@@ -64,15 +64,23 @@ class Piece:
         """
         randomPiece = random.choice(self.enemy.pieces)
         randomPiece.generate_moves()
-        print(randomPiece.availableMoves)
+        # print(randomPiece.availableMoves)
 
         while not randomPiece.availableMoves:
             randomPiece = random.choice(self.enemy.pieces)
             randomPiece.generate_moves()
         randomMove = random.choice(randomPiece.availableMoves)
-        print(f"made a move : {randomPiece} moved to {randomMove}")
-        self.engine.make_move(randomMove, randomPiece)
-        randomPiece.engine.checkCollision(randomPiece.enemy, randomPiece)
+        # print(f"made a move : {randomPiece} moved to {randomMove}")
+        randomPiece.engine.make_move(randomMove, randomPiece)
+
+        removingPiece = randomPiece.engine.removingPiece
+        if removingPiece is not None:
+            randomPiece.pieceLayout.remove_widget(removingPiece)
+
+        #isCollide = randomPiece.engine.checkCollision(randomPiece.enemy, randomPiece)
+        #if isCollide:
+        #    randomPiece.engine.layout.remove_widget(isCollide)
+            # randomPiece.enemy.pieces.remove(isCollide)
 
         return randomPiece, randomMove
 
@@ -91,20 +99,30 @@ class DragPiece(DragBehavior, Image, Piece):
 
         if (centerX, centerY) in self.availableMoves and self.get_piece_color() == "w":
             self.set_center(self, centerX, centerY)
-            self.engine.make_move((centerX, centerY), self)
 
             if self.grabbed:
-                #TODO: Refactoring
-                self.engine.whiteTurn = True #if self.get_piece_color() == "b" else False
+                # TODO: Refactoring
+
+                self.engine.make_move((centerX, centerY), self)
+
+                removingPiece = self.engine.removingPiece
+                if removingPiece is not None:
+                    self.pieceLayout.remove_widget(removingPiece)
+
+                self.engine.whiteTurn = True  # if self.get_piece_color() == "b" else False
                 print(self.engine.evaluate())
 
                 self.is_already_moved(True)
-                self.engine.checkCollision(self.enemy, self)
+
+                # print(len(self.enemy.pieces))
+                # self.engine.unmake_move()
+                # print(len(self.enemy.pieces))
+
                 randMove = self.computer_move()
                 randMove[0].is_already_moved(True)
                 self.set_center(randMove[0], randMove[1][0], randMove[1][1])
 
-                self.engine.whiteTurn = False #if self.get_piece_color() == "b" else False
+                self.engine.whiteTurn = False  # if self.get_piece_color() == "b" else False
                 print(randMove[0].engine.evaluate())
         else:
             self.set_center(self, self.coordinates[0], self.coordinates[1])
@@ -120,7 +138,7 @@ class DragPiece(DragBehavior, Image, Piece):
 
         if self.collide_point(*touch.pos) and self.get_piece_color() == "w":
             self.generate_moves()
-            #self.engine.is_checked(self, self.enemy)
+            # self.engine.is_checked(self, self.enemy)
             print(self.availableMoves)
             self.grabbed = True
 
@@ -152,7 +170,7 @@ class King(DragPiece):
                     self.availableMoves.append((targetX, targetY))
 
         # Castling
-        #if not self.alreadyMoved and self.board[startX][startY+2] == "-":
+        # if not self.alreadyMoved and self.board[startX][startY+2] == "-":
         #    self.availableMoves.append((startX, startY+2))
 
 
