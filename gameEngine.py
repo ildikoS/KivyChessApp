@@ -81,19 +81,25 @@ class GameEngine:
                 return enemyPiece
         return False
 
-    def is_checked(self, playerPiece, enemy):
-        original_pos = playerPiece.coordinates
+    def legal_moves(self, playerPiece, enemy):
         playerPiece.generate_moves()
+        invalid_moves = []
 
         for move in playerPiece.availableMoves:
             self.make_move(move, playerPiece)
+            print(f"MOVED: {move}")
             for enemyPiece in enemy.pieces:
                 enemyPiece.generate_moves()
                 if self.kingSquare in enemyPiece.availableMoves:
-                    print(f"{enemyPiece} - {enemyPiece.availableMoves}")
-                    playerPiece.availableMoves.remove(move)
-                    continue
-            self.make_move(original_pos, playerPiece)
+                    #playerPiece.availableMoves.remove(move)
+                    invalid_moves.append(move)
+                    print(f"{self.kingSquare} - {enemyPiece} - {enemyPiece.availableMoves}")
+                    #continue
+            self.unmake_move()
+
+        for inv_move in invalid_moves:
+            playerPiece.availableMoves.remove(inv_move)
+        #return valid_moves
 
     def make_move(self, move, argPiece):
         """
@@ -101,6 +107,7 @@ class GameEngine:
         :param move: Tuple with number x, y coordinates
         :param argPiece: Piece which wanted to be moved to the square
         """
+        self.removingPiece = None
         self.originalPiece = argPiece
         self.originalPieceCoords = self.originalPiece.coordinates
         x, y = argPiece.coordinates
@@ -122,7 +129,7 @@ class GameEngine:
         originalX, originalY = self.originalPieceCoords
         self.board[originalX][originalY] = self.originalPiece
         self.originalPiece.set_coords(originalX, originalY)
-        print(f"{originalX} and {originalY}")
+        #print(f"{originalX} and {originalY}")
 
         targetX, targetY = self.targetTileCoords
         self.board[targetX][targetY] = self.targetTile

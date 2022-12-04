@@ -97,7 +97,7 @@ class DragPiece(DragBehavior, Image, Piece):
         centerX = round(self.get_center_x()) // tile_size
         centerY = round(self.get_center_y()) // tile_size
 
-        if (centerX, centerY) in self.availableMoves and self.get_piece_color() == "w":
+        if (centerX, centerY) in self.availableMoves: #and self.get_piece_color() == "w":
             self.set_center(self, centerX, centerY)
 
             if self.grabbed:
@@ -106,11 +106,12 @@ class DragPiece(DragBehavior, Image, Piece):
                 self.engine.make_move((centerX, centerY), self)
 
                 removingPiece = self.engine.removingPiece
+                print(f"REMOVING PIECE: {removingPiece}")
                 if removingPiece is not None:
                     self.pieceLayout.remove_widget(removingPiece)
 
                 self.engine.whiteTurn = True  # if self.get_piece_color() == "b" else False
-                print(self.engine.evaluate())
+                #print(self.engine.evaluate())
 
                 self.is_already_moved(True)
 
@@ -118,12 +119,12 @@ class DragPiece(DragBehavior, Image, Piece):
                 # self.engine.unmake_move()
                 # print(len(self.enemy.pieces))
 
-                randMove = self.computer_move()
-                randMove[0].is_already_moved(True)
-                self.set_center(randMove[0], randMove[1][0], randMove[1][1])
+                #randMove = self.computer_move()
+                #randMove[0].is_already_moved(True)
+                #self.set_center(randMove[0], randMove[1][0], randMove[1][1])
 
                 self.engine.whiteTurn = False  # if self.get_piece_color() == "b" else False
-                print(randMove[0].engine.evaluate())
+                #print(randMove[0].engine.evaluate())
         else:
             self.set_center(self, self.coordinates[0], self.coordinates[1])
 
@@ -136,9 +137,10 @@ class DragPiece(DragBehavior, Image, Piece):
     def on_touch_down(self, touch):
         super(DragPiece, self).on_touch_down(touch)
 
-        if self.collide_point(*touch.pos) and self.get_piece_color() == "w":
+        if self.collide_point(*touch.pos): #and self.get_piece_color() == "w":
             self.generate_moves()
-            # self.engine.is_checked(self, self.enemy)
+            print(self.availableMoves)
+            self.engine.legal_moves(self, self.enemy)
             print(self.availableMoves)
             self.grabbed = True
 
