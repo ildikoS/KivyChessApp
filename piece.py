@@ -106,7 +106,6 @@ class DragPiece(DragBehavior, Image, Piece):
                 self.engine.make_move((centerX, centerY), self)
 
                 removingPiece = self.engine.removingPiece
-                print(f"REMOVING PIECE: {removingPiece}")
                 if removingPiece is not None:
                     self.pieceLayout.remove_widget(removingPiece)
 
@@ -114,6 +113,9 @@ class DragPiece(DragBehavior, Image, Piece):
                 #print(self.engine.evaluate())
 
                 self.is_already_moved(True)
+
+                if self.engine.is_checkmate(self.enemy):
+                    print(f"CHECK MATE, winner is: {self.get_piece_color()}")
 
                 # print(len(self.enemy.pieces))
                 # self.engine.unmake_move()
@@ -139,9 +141,9 @@ class DragPiece(DragBehavior, Image, Piece):
 
         if self.collide_point(*touch.pos): #and self.get_piece_color() == "w":
             self.generate_moves()
-            print(self.availableMoves)
+            #print(self.availableMoves)
             self.engine.legal_moves(self, self.enemy)
-            print(self.availableMoves)
+            #print(self.availableMoves)
             self.grabbed = True
 
             self.drawAvailablePositions()

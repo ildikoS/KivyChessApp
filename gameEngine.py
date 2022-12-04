@@ -87,19 +87,24 @@ class GameEngine:
 
         for move in playerPiece.availableMoves:
             self.make_move(move, playerPiece)
-            print(f"MOVED: {move}")
+            #print(f"MOVED: {move}")
             for enemyPiece in enemy.pieces:
                 enemyPiece.generate_moves()
                 if self.kingSquare in enemyPiece.availableMoves:
-                    #playerPiece.availableMoves.remove(move)
                     invalid_moves.append(move)
-                    print(f"{self.kingSquare} - {enemyPiece} - {enemyPiece.availableMoves}")
-                    #continue
+                    #print(f"{self.kingSquare} - {enemyPiece} - {enemyPiece.availableMoves}")
             self.unmake_move()
 
         for inv_move in invalid_moves:
             playerPiece.availableMoves.remove(inv_move)
         #return valid_moves
+
+    def is_checkmate(self, player):
+        for myPiece in player.pieces:
+            self.legal_moves(myPiece, myPiece.enemy)
+            if myPiece.availableMoves:
+                return False
+        return True
 
     def make_move(self, move, argPiece):
         """
