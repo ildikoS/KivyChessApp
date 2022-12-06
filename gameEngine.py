@@ -83,7 +83,7 @@ class GameEngine:
 
     def legal_moves(self, playerPiece, enemy):
         playerPiece.generate_moves()
-        invalid_moves = []
+        invalid_moves = set()
 
         self.can_castling()
         for move in playerPiece.availableMoves:
@@ -92,11 +92,13 @@ class GameEngine:
             for enemyPiece in enemy.pieces:
                 enemyPiece.generate_moves()
                 if self.kingSquare in enemyPiece.availableMoves:
-                    invalid_moves.append(move)
+                    invalid_moves.add(move)
                     #print(f"{self.kingSquare} - {enemyPiece} - {enemyPiece.availableMoves}")
             self.unmake_move()
 
+        #print(invalid_moves) #[0,2 és 0,2]
         for inv_move in invalid_moves:
+            #print(inv_move)
             playerPiece.availableMoves.remove(inv_move)
         #return valid_moves
 
@@ -111,9 +113,8 @@ class GameEngine:
         self.set_king_square("w")
         kingX, kingY = self.kingSquare
         king = self.board[kingX][kingY]
-        overRook = self.board[kingX][kingY+4]
-        bottomRook = self.board[kingX][kingY-3]
-        #bottomRook = self.board[kingX][kingY-3] if type(self.board[kingX][kingY-3]) == piece.Rook else False
+        overRook = self.board[kingX][7]
+        bottomRook = self.board[kingX][0]
 
         if not king.alreadyMoved:
             if type(bottomRook) == piece.Rook and not bottomRook.alreadyMoved:
@@ -127,11 +128,26 @@ class GameEngine:
     def do_castling(self):
         print("castling")
         kingX, kingY = self.kingSquare
-        bottomRook = self.board[kingX][kingY-1]
-        print(f"BOTTOMROOK: {bottomRook}")
-        self.board[kingX][kingY+1] = bottomRook
-        print(f"king feletti hely: {self.board[kingX][kingY + 1]}")
-        self.board[kingX][kingY+1].set_coords(kingX, kingY + 1)
+        rook = None
+
+        if kingY == 1:
+            rook = self.board[kingX][0]
+            self.board[kingX][0] = "-"
+            self.board[kingX][kingY+1] = rook
+            self.board[kingX][kingY + 1].set_coords(kingX, kingY + 1)
+        elif kingY == 5:
+            rook = self.board[kingX][7]
+            self.board[kingX][7] = "-"
+            self.board[kingX][kingY-1] = rook
+            self.board[kingX][kingY-1].set_coords(kingX, kingY-1)
+            print(f"BOTTOMROOK: {rook.coordinates}")
+            self.board[kingX][kingY-1].set_center(self.board[kingX][kingY-1], 0, 4)
+
+        print(f"BOTTOMROOK: {rook}")
+
+        #self.board[kingX][kingY+1] = bottomRook
+        #print(f"king feletti hely: {self.board[kingX][kingY + 1]}")
+        #self.board[kingX][kingY+1].set_coords(kingX, kingY + 1)
 
     def make_move(self, move, argPiece):
         """
