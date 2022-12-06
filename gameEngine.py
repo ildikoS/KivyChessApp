@@ -85,6 +85,7 @@ class GameEngine:
         playerPiece.generate_moves()
         invalid_moves = []
 
+        self.can_castling()
         for move in playerPiece.availableMoves:
             self.make_move(move, playerPiece)
             #print(f"MOVED: {move}")
@@ -106,6 +107,32 @@ class GameEngine:
                 return False
         return True
 
+    def can_castling(self):
+        self.set_king_square("w")
+        kingX, kingY = self.kingSquare
+        king = self.board[kingX][kingY]
+        overRook = self.board[kingX][kingY+4]
+        bottomRook = self.board[kingX][kingY-3]
+        #bottomRook = self.board[kingX][kingY-3] if type(self.board[kingX][kingY-3]) == piece.Rook else False
+
+        if not king.alreadyMoved:
+            if type(bottomRook) == piece.Rook and not bottomRook.alreadyMoved:
+                if self.board[kingX][kingY-1] == "-" and self.board[kingX][kingY-2] == "-":
+                    king.availableMoves.append((kingX, kingY-2))
+            if type(overRook) == piece.Rook and not overRook.alreadyMoved:
+                if self.board[kingX][kingY+1] == "-" and self.board[kingX][kingY+2] == "-"\
+                        and self.board[kingX][kingY+3] == "-":
+                    king.availableMoves.append((kingX, kingY+2))
+
+    def do_castling(self):
+        print("castling")
+        kingX, kingY = self.kingSquare
+        bottomRook = self.board[kingX][kingY-1]
+        print(f"BOTTOMROOK: {bottomRook}")
+        self.board[kingX][kingY+1] = bottomRook
+        print(f"king feletti hely: {self.board[kingX][kingY + 1]}")
+        self.board[kingX][kingY+1].set_coords(kingX, kingY + 1)
+
     def make_move(self, move, argPiece):
         """
         Set the (x, y) square of piece
@@ -126,9 +153,13 @@ class GameEngine:
         if self.targetTile != "-":
             self.removingPiece = self.targetTile
             argPiece.enemy.pieces.remove(self.targetTile)
-            #self.targetTile.player.pieces.remove(self.targetTile)
-        #argPiece.engine.checkCollision(argPiece.enemy, argPiece)
-        self.get_king_square(argPiece.get_piece_color())
+
+        print(self.kingSquare)
+        if type(argPiece) == piece.King and x == 0 and (y == 1 or y == 5):
+            print(argPiece)
+            self.do_castling()
+
+        self.set_king_square(argPiece.get_piece_color())
 
     def unmake_move(self):
         originalX, originalY = self.originalPieceCoords
@@ -142,8 +173,7 @@ class GameEngine:
             self.targetTile.set_coords(targetX, targetY)
             self.targetTile.player.pieces.append(self.targetTile)
 
-
-    def get_king_square(self, pieceColor):
+    def set_king_square(self, pieceColor):
         for i in range(8):
             for j in range(8):
                 if type(self.board[i][j]) == piece.King and self.board[i][j].get_piece_color() == pieceColor:
