@@ -62,27 +62,32 @@ class Piece:
 
         :return: With a random move of a random enemy piece
         """
-        randomPiece = random.choice(self.enemy.pieces)
-        randomPiece.generate_moves()
-        # print(randomPiece.availableMoves)
+        #randomPiece = random.choice(self.enemy.pieces)
+        #randomPiece.generate_moves()
+        #print(randomPiece.availableMoves)
 
-        while not randomPiece.availableMoves:
-            randomPiece = random.choice(self.enemy.pieces)
-            randomPiece.generate_moves()
-        randomMove = random.choice(randomPiece.availableMoves)
+        self.engine.minimax(self.enemy, 1, False, -9999, 9999)
+
+        compPiece = self.engine.bestPieceWithMove[0]
+        compMove = self.engine.bestPieceWithMove[1]
+
+       #while not randomPiece.availableMoves:
+       #    randomPiece = random.choice(self.enemy.pieces)
+       #    randomPiece.generate_moves()
+       #randomMove = random.choice(randomPiece.availableMoves)
         # print(f"made a move : {randomPiece} moved to {randomMove}")
-        randomPiece.engine.make_move(randomMove, randomPiece)
+        compPiece.engine.make_move(compMove, compPiece)
 
-        removingPiece = randomPiece.engine.removingPiece
+        removingPiece = compPiece.engine.removingPiece
         if removingPiece is not None:
-            randomPiece.pieceLayout.remove_widget(removingPiece)
+            compPiece.pieceLayout.remove_widget(removingPiece)
 
         #isCollide = randomPiece.engine.checkCollision(randomPiece.enemy, randomPiece)
         #if isCollide:
         #    randomPiece.engine.layout.remove_widget(isCollide)
             # randomPiece.enemy.pieces.remove(isCollide)
 
-        return randomPiece, randomMove
+        return compPiece, compMove
 
 
 class DragPiece(DragBehavior, Image, Piece):
@@ -108,8 +113,6 @@ class DragPiece(DragBehavior, Image, Piece):
                 removingPiece = self.engine.removingPiece
                 if removingPiece is not None:
                     self.pieceLayout.remove_widget(removingPiece)
-
-                self.engine.whiteTurn = True  # if self.get_piece_color() == "b" else False
                 #print(self.engine.evaluate())
 
                 self.is_already_moved(True)
@@ -117,16 +120,20 @@ class DragPiece(DragBehavior, Image, Piece):
                 if self.engine.is_checkmate(self.enemy):
                     print(f"CHECK MATE, winner is: {self.get_piece_color()}")
 
+
                 # print(len(self.enemy.pieces))
                 # self.engine.unmake_move()
                 # print(len(self.enemy.pieces))
 
-                #randMove = self.computer_move()
-                #randMove[0].is_already_moved(True)
-                #self.set_center(randMove[0], randMove[1][0], randMove[1][1])
+                self.engine.whiteTurn = True
 
-                self.engine.whiteTurn = False  # if self.get_piece_color() == "b" else False
+                #computerMove = self.computer_move()
+                #computerMove[0].is_already_moved(True)
+                #self.set_center(computerMove[0], computerMove[1][0], computerMove[1][1])
+
+                # if self.get_piece_color() == "b" else False
                 #print(randMove[0].engine.evaluate())
+                self.engine.whiteTurn = False
         else:
             self.set_center(self, self.coordinates[0], self.coordinates[1])
 

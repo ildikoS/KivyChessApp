@@ -1,3 +1,4 @@
+from kivy.clock import Clock
 from kivy.config import Config
 from kivy.app import App
 from kivy.uix.image import Image
@@ -27,6 +28,8 @@ class ChessBoardUI:
                                              size_hint=(0.125, 0.125)))
         self.draw_pieces()
 
+        #self.on_start()
+
     def draw_pieces(self):
         self.gameEng.createBoard()
         self.board = self.gameEng.board
@@ -42,10 +45,34 @@ class ChessBoardUI:
 
                     self.layout.add_widget(currPiece)
 
+    def new_game(self):
+        self.gameEng = GameEngine()
+        self.board = None  # self.gameEng.board
+        self.layout = self.gameEng.layout
+        self.draw_pieces()
+
+    def on_start(self):
+        Clock.schedule_interval(self.callback, 0.5)
+
+    def callback(self):
+        print(self)
+        #if self.gameEng.is_checkmate(self.gameEng.player1) or self.gameEng.is_checkmate(self.gameEng.player1):
+        #    self.gameEng = GameEngine()
+        #    self.board = None  # self.gameEng.board
+        #    self.layout = self.gameEng.layout
+        #    self.draw_pieces()
+
+    Clock.schedule_interval(callback, 0.5)
+
 
 class ChessApp(App):
     def build(self):
-        return ChessBoardUI().layout
+        chessBoard = ChessBoardUI()
+
+        #chessBoard.on_start()
+        #Clock.schedule_interval(chessBoard.callback, 0.5)
+
+        return chessBoard.layout
 
 
 if __name__ == "__main__":

@@ -40,6 +40,7 @@ class GameEngine:
     inf = 999999
 
     def __init__(self):
+        self.bestPieceWithMove = None
         self.removingPiece = None
         self.originalPieceCoords = None
         self.targetTileCoords = None
@@ -85,7 +86,7 @@ class GameEngine:
         playerPiece.generate_moves()
         invalid_moves = set()
 
-        self.can_castling()
+        self.can_castling(playerPiece)
         for move in playerPiece.availableMoves:
             self.make_move(move, playerPiece)
             #print(f"MOVED: {move}")
@@ -109,8 +110,8 @@ class GameEngine:
                 return False
         return True
 
-    def can_castling(self):
-        self.set_king_square("w")
+    def can_castling(self, playerPiece):
+        self.set_king_square(playerPiece.get_piece_color())
         kingX, kingY = self.kingSquare
         king = self.board[kingX][kingY]
         overRook = self.board[kingX][7]
@@ -131,17 +132,18 @@ class GameEngine:
         rook = None
 
         if kingY == 1:
+            print(self.board[kingX][0])
             rook = self.board[kingX][0]
             self.board[kingX][0] = "-"
             self.board[kingX][kingY+1] = rook
-            self.board[kingX][kingY + 1].set_coords(kingX, kingY + 1)
+            self.board[kingX][kingY+1].set_coords(kingX, kingY + 1)
         elif kingY == 5:
             rook = self.board[kingX][7]
             self.board[kingX][7] = "-"
             self.board[kingX][kingY-1] = rook
             self.board[kingX][kingY-1].set_coords(kingX, kingY-1)
             print(f"BOTTOMROOK: {rook.coordinates}")
-            self.board[kingX][kingY-1].set_center(self.board[kingX][kingY-1], 0, 4)
+            self.board[kingX][kingY-1].set_center(self.board[kingX][kingY-1], kingX, kingY-1)
 
         print(f"BOTTOMROOK: {rook}")
 
@@ -168,11 +170,10 @@ class GameEngine:
         argPiece.set_coords(x, y)
         if self.targetTile != "-":
             self.removingPiece = self.targetTile
+            print(self.targetTile)
             argPiece.enemy.pieces.remove(self.targetTile)
 
-        print(self.kingSquare)
-        if type(argPiece) == piece.King and x == 0 and (y == 1 or y == 5):
-            print(argPiece)
+        if argPiece.coordinates == self.kingSquare and (y == 1 or y == 5):
             self.do_castling()
 
         self.set_king_square(argPiece.get_piece_color())
@@ -197,15 +198,17 @@ class GameEngine:
                     #print(f"FOUND KING {self.kingSquare}")
                     break
 
-    def minimax(self, player, depth, maxPlayer):
+    def minimax(self, player, depth, maxPlayer, alpha, beta):
         """
 
+        :param beta:
+        :param alpha:
         :param player:
         :param depth:
         :param maxPlayer:
         :return:
         """
-        if depth == 0:
+        if depth == 0 or self.is_checkmate(player):
             return self.evaluate()
 
         maxEvaluation = -self.inf
@@ -213,20 +216,28 @@ class GameEngine:
             for currPiece in player.pieces:
                 for move in currPiece.availableMoves:
                     self.make_move(move, currPiece)
-                    currEvaluation = self.minimax(player.enemy, depth - 1, False)
+                    currEvaluation = self.minimax(currPiece.enemy, depth - 1, False, alpha, beta)
                     if currEvaluation > maxEvaluation:
                         maxEvaluation = max(currEvaluation, maxEvaluation)
+                        self.bestPieceWithMove = currPiece, move
                     self.unmake_move()
+                    alpha = max(alpha, currEvaluation)
+                    if beta <= alpha:
+                        break
             return maxEvaluation
         else:
             minEvaluation = self.inf
             for currPiece in player.pieces:
                 for move in currPiece.availableMoves:
                     self.make_move(move, currPiece)
-                    currEvaluation = self.minimax(player, depth - 1, True)
+                    currEvaluation = self.minimax(currPiece.enemy, depth - 1, True, alpha, beta)
                     if currEvaluation < minEvaluation:
-                        minEvaluation = max(currEvaluation, maxEvaluation)
+                        minEvaluation = min(currEvaluation, minEvaluation)
+                        self.bestPieceWithMove = currPiece, move
                     self.unmake_move()
+                    beta = min(beta, currEvaluation)
+                    if beta <= alpha:
+                        break
             return minEvaluation
 
     #def negamax(self, player, depth):
@@ -248,9 +259,6 @@ class GameEngine:
     def evaluate(self):
         whiteScore = self.count_pieces("w")
         blackScore = self.count_pieces("b")
-
-        print(whiteScore)
-        print(blackScore)
 
         evaluation = whiteScore - blackScore
         # negamax: evaluation = materialWeight * (whiteScore - blackScore)
