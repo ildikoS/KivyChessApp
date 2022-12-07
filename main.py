@@ -62,7 +62,7 @@ class ChessBoardUI:
         #    self.layout = self.gameEng.layout
         #    self.draw_pieces()
 
-    Clock.schedule_interval(callback, 0.5)
+    #Clock.schedule_interval(callback, 0.5)
 
 
 class ChessApp(App):

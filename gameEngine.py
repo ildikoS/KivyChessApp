@@ -166,11 +166,15 @@ class GameEngine:
         x, y = move
         self.targetTile = self.board[x][y]
         self.targetTileCoords = move
+        print(self.board[5][0])
         self.board[x][y] = argPiece
         argPiece.set_coords(x, y)
         if self.targetTile != "-":
             self.removingPiece = self.targetTile
-            print(self.targetTile)
+            print(argPiece)
+            print(self.targetTile.availableMoves)
+            print(argPiece.enemy.pieces)
+            print(argPiece.player.pieces)
             argPiece.enemy.pieces.remove(self.targetTile)
 
         if argPiece.coordinates == self.kingSquare and (y == 1 or y == 5):
@@ -214,6 +218,8 @@ class GameEngine:
         maxEvaluation = -self.inf
         if maxPlayer:
             for currPiece in player.pieces:
+                self.legal_moves(currPiece, currPiece.enemy)
+                #print(f"{currPiece} : {currPiece.availableMoves}")
                 for move in currPiece.availableMoves:
                     self.make_move(move, currPiece)
                     currEvaluation = self.minimax(currPiece.enemy, depth - 1, False, alpha, beta)
@@ -228,6 +234,8 @@ class GameEngine:
         else:
             minEvaluation = self.inf
             for currPiece in player.pieces:
+                print(f"{currPiece} : {currPiece.availableMoves}")
+                self.legal_moves(currPiece, currPiece.enemy)
                 for move in currPiece.availableMoves:
                     self.make_move(move, currPiece)
                     currEvaluation = self.minimax(currPiece.enemy, depth - 1, True, alpha, beta)

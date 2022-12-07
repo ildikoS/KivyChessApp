@@ -76,6 +76,7 @@ class Piece:
        #    randomPiece.generate_moves()
        #randomMove = random.choice(randomPiece.availableMoves)
         # print(f"made a move : {randomPiece} moved to {randomMove}")
+        print(compPiece.availableMoves)
         compPiece.engine.make_move(compMove, compPiece)
 
         removingPiece = compPiece.engine.removingPiece
@@ -127,9 +128,9 @@ class DragPiece(DragBehavior, Image, Piece):
 
                 self.engine.whiteTurn = True
 
-                #computerMove = self.computer_move()
-                #computerMove[0].is_already_moved(True)
-                #self.set_center(computerMove[0], computerMove[1][0], computerMove[1][1])
+                computerMove = self.computer_move()
+                computerMove[0].is_already_moved(True)
+                self.set_center(computerMove[0], computerMove[1][0], computerMove[1][1])
 
                 # if self.get_piece_color() == "b" else False
                 #print(randMove[0].engine.evaluate())
