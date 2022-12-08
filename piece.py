@@ -4,7 +4,7 @@ from kivy.uix.behaviors import DragBehavior
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 
-tile_size = 70
+tile_size = 80
 
 
 class Piece:

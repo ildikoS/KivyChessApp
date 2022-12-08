@@ -6,13 +6,15 @@ from kivy.uix.image import Image
 from gameEngine import GameEngine
 
 # Configurate window settings
-Config.set('graphics', 'width', '560')
-Config.set('graphics', 'height', '560')
-Config.set('graphics', 'resizable', '0')
+Config.set('graphics', 'width', '720')
+Config.set('graphics', 'height', '860')
+
+
+# Config.set('graphics', 'resizable', '0')
 
 
 class ChessBoardUI:
-    tile_size = 70
+    tile_size = 80
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -23,12 +25,17 @@ class ChessBoardUI:
         for i in range(8):
             for j in range(8):
                 color = 'square brown dark' if (i + j) % 2 == 0 else 'square brown light'
+                tile = Image(source=f'128h/{color}_png_128px.png')
+                tile.pos = (self.tile_size * i, self.tile_size * j)
+                tile.size = (self.tile_size, self.tile_size)
                 self.layout.add_widget(Image(source=f'128h/{color}_png_128px.png',
                                              pos=(self.tile_size * i, self.tile_size * j),
-                                             size_hint=(0.125, 0.125)))
+                                             size_hint=(None, None),
+                                             size=(self.tile_size, self.tile_size)))
+
         self.draw_pieces()
 
-        #self.on_start()
+        # self.on_start()
 
     def draw_pieces(self):
         self.gameEng.createBoard()
@@ -56,21 +63,21 @@ class ChessBoardUI:
 
     def callback(self):
         print(self)
-        #if self.gameEng.is_checkmate(self.gameEng.player1) or self.gameEng.is_checkmate(self.gameEng.player1):
+        # if self.gameEng.is_checkmate(self.gameEng.player1) or self.gameEng.is_checkmate(self.gameEng.player1):
         #    self.gameEng = GameEngine()
         #    self.board = None  # self.gameEng.board
         #    self.layout = self.gameEng.layout
         #    self.draw_pieces()
 
-    #Clock.schedule_interval(callback, 0.5)
+    # Clock.schedule_interval(callback, 0.5)
 
 
 class ChessApp(App):
     def build(self):
         chessBoard = ChessBoardUI()
 
-        #chessBoard.on_start()
-        #Clock.schedule_interval(chessBoard.callback, 0.5)
+        # chessBoard.on_start()
+        # Clock.schedule_interval(chessBoard.callback, 0.5)
 
         return chessBoard.layout
 
