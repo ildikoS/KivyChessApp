@@ -1,8 +1,10 @@
 import random
 
+from kivy.properties import StringProperty
 from kivy.uix.behaviors import DragBehavior
 from kivy.uix.image import Image
 from kivy.uix.label import Label
+from kivy.uix.popup import Popup
 
 tile_size = 80
 
@@ -39,14 +41,14 @@ class Piece:
     def set_piece_color(self, color):
         self.pieceColor = color
 
-    def set_engine(self, engine):
+    def set_engine(self, engine, layout):
         self.engine = engine
         self.board = self.engine.board
 
         self.player = self.engine.player1 if self.get_piece_color() == 'b' else self.engine.player2
         self.enemy = self.engine.player2 if self.player == self.engine.player1 else self.engine.player1
 
-        self.pieceLayout = self.engine.layout
+        self.pieceLayout = layout
 
     def get_piece_color(self):
         return self.pieceColor
@@ -96,6 +98,7 @@ class DragPiece(DragBehavior, Image, Piece):
         super(DragPiece, self).__init__(**kwargs)
         self.outlines = []
         self.grabbed = False
+        self.offset = 0
 
     def on_touch_up(self, touch):
         super(DragPiece, self).on_touch_up(touch)
@@ -103,10 +106,15 @@ class DragPiece(DragBehavior, Image, Piece):
         centerX = round(self.get_center_x()) // tile_size
         centerY = round(self.get_center_y()) // tile_size
 
+        #if self.grabbed:
+        #    #print(self.get_center_x())
+        #    #print(round(self.get_center_x()))
+        #    print(round(self.get_center_x()) // tile_size)
+        #    #print((round(self.get_center_x()) // tile_size) + 35)
+        #    print((round(self.get_center_x()) // (tile_size+self.offset)))
         if (centerX, centerY) in self.availableMoves: #and self.get_piece_color() == "w":
-            self.set_center(self, centerX, centerY)
-
             if self.grabbed:
+                self.set_center(self, centerX, centerY)
                 # TODO: Refactoring
 
                 self.engine.make_move((centerX, centerY), self)
@@ -120,6 +128,10 @@ class DragPiece(DragBehavior, Image, Piece):
 
                 if self.engine.is_checkmate(self.enemy):
                     print(f"CHECK MATE, winner is: {self.get_piece_color()}")
+                    popup = GameEndPopup()
+                    winner = "Fehér Játékos (Te)" if self.get_piece_color() == "w" else "Fekete Játékos (Gép)"
+                    popup.text = f"Nyertes: {winner}"
+                    popup.open()
 
 
                 # print(len(self.enemy.pieces))
@@ -128,9 +140,9 @@ class DragPiece(DragBehavior, Image, Piece):
 
                 self.engine.whiteTurn = True
 
-                computerMove = self.computer_move()
-                computerMove[0].is_already_moved(True)
-                self.set_center(computerMove[0], computerMove[1][0], computerMove[1][1])
+                #computerMove = self.computer_move()
+                #computerMove[0].is_already_moved(True)
+                #self.set_center(computerMove[0], computerMove[1][0], computerMove[1][1])
 
                 # if self.get_piece_color() == "b" else False
                 #print(randMove[0].engine.evaluate())
@@ -158,16 +170,21 @@ class DragPiece(DragBehavior, Image, Piece):
 
     def drawAvailablePositions(self):
         for move in self.availableMoves:
-            uiOutline = Image(source='128h/outline_circ.png', pos=(move[0] * tile_size+35, move[1] * tile_size+35),
+            uiOutline = Image(source='128h/outline_circ.png',
+                              pos=(move[0] * tile_size+self.offset, move[1] * tile_size+self.offset),
                               size_hint=(None, None),
                               size=(tile_size, tile_size))
             self.outlines.append(uiOutline)
             self.pieceLayout.add_widget(uiOutline)
 
     def set_center(self, piece, centerX, centerY):
-        uiTile = (tile_size // 2) + 35
+        uiTile = (tile_size // 2) + self.offset
         piece.set_center_x(centerX * tile_size + uiTile)
         piece.set_center_y(centerY * tile_size + uiTile)
+
+
+class GameEndPopup(Popup):
+    text = StringProperty('')
 
 
 class King(DragPiece):

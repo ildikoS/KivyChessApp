@@ -32,14 +32,14 @@ def positions_from_FEN(fenStr):
 
 
 class GameEngine:
-    initialFEN = 'rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR/ w KQkq - 0 1'
-    board = positions_from_FEN(initialFEN)
-    blacks = []
-    whites = []
-    whiteTurn = True
     inf = 999999
-
-    def __init__(self):
+    initialFEN = 'rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR/ w KQkq - 0 1'
+    
+    def __init__(self, initialFEN=initialFEN):
+        self.board = positions_from_FEN(initialFEN)
+        self.blacks = []
+        self.whites = []
+        self.whiteTurn = True
         self.bestPieceWithMove = None
         self.removingPiece = None
         self.originalPieceCoords = None
@@ -49,7 +49,7 @@ class GameEngine:
         self.kingSquare = None
         self.player1 = None
         self.player2 = None
-        self.layout = FloatLayout()
+        #self.layout = FloatLayout()
 
     def createBoard(self):
         for i in range(8):

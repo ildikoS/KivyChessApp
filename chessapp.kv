@@ -1,0 +1,39 @@
+<DragPiece>:
+    # Define the properties for the DragLabel
+    size_hint: (None, None)
+    size: 80, 80
+    drag_rectangle: self.x, self.y, self.width, self.height
+    drag_distance: 0
+
+<NewGameButton>:
+    text: "Új játék"
+    font_size: 15
+    size: 100, 60
+    size_hint: None, None
+    pos: 320, 780
+
+<gameEndPopup>:
+    title: "Játék vége"
+    size_hint: None, None
+    size: 400, 400
+
+    Label:
+        text: root.text
+
+<MainScreen>:
+    name: "main"
+    BoxLayout:
+        Button:
+            text: 'Start'
+            on_press: root.manager.current = 'game'
+        Button:
+            text: 'Szabály'
+
+<GameScreen>:
+    name: "game"
+
+#<GreenCircle>:
+#    Image:
+#        source: '128h/outline_circ.png'
+#        size_hint: (None, None)
+#        size: 80, 80
