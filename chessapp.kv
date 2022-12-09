@@ -21,7 +21,12 @@
         text: root.text
 
 <MainScreen>:
-    name: "main"
+    canvas.before:
+        Color:
+            rgb: 58/255.0, 46/255.0, 46/255.0
+        Rectangle:
+            pos: self.pos
+            size: self.size
     FloatLayout:
         Label:
             text: "Sakk Játék"
@@ -36,6 +41,12 @@
             on_press: root.manager.current = 'game'
 
 <GameScreen>:
+    canvas.before:
+        Color:
+            rgb: 58/255.0, 46/255.0, 46/255.0
+        Rectangle:
+            pos: self.pos
+            size: self.size
     name: "game"
 
 #<GreenCircle>:

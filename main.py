@@ -1,23 +1,15 @@
-from kivy.clock import Clock
 from kivy.config import Config
 from kivy.app import App
-from kivy.graphics.svg import Window
-from kivy.properties import StringProperty
 from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
-from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import ScreenManager, Screen
 
 from gameEngine import GameEngine
 
 # Configurate window settings
-Window.clearcolor = (0.16, 0.12, 0.09, 0.7)
-Window.size = (720, 860)
-#Config.set('graphics', 'width', '720')
-#Config.set('graphics', 'height', '860')
-
-
+Config.set('graphics', 'width', '720')
+Config.set('graphics', 'height', '860')
 # Config.set('graphics', 'resizable', '0')
 
 
@@ -105,7 +97,7 @@ class ChessApp(App):
 
         gm.add_widget(layout2)
         sm.add_widget(gm)
-        
+
         return sm
 
 
