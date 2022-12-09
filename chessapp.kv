@@ -22,12 +22,18 @@
 
 <MainScreen>:
     name: "main"
-    BoxLayout:
+    FloatLayout:
+        Label:
+            text: "Sakk Játék"
+            size_hint: None, None
+            size: 200, 100
+            pos: 240, 720
         Button:
+            size_hint: None, None
+            size: 200, 100
+            pos: 240, 420
             text: 'Start'
             on_press: root.manager.current = 'game'
-        Button:
-            text: 'Szabály'
 
 <GameScreen>:
     name: "game"

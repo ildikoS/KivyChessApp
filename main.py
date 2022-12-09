@@ -98,13 +98,14 @@ class ChessApp(App):
         sm.add_widget(MainScreen())
         gm = GameScreen()
         chessBoard = ChessBoardUI()
-        gm.add_widget(chessBoard)
-        sm.add_widget(gm)
 
         layout2 = FloatLayout()
         layout2.add_widget(NewGameButton(chessBoard))
         layout2.add_widget(chessBoard.layout)
 
+        gm.add_widget(layout2)
+        sm.add_widget(gm)
+        
         return sm
 
 
