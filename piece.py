@@ -158,13 +158,14 @@ class DragPiece(DragBehavior, Image, Piece):
 
     def drawAvailablePositions(self):
         for move in self.availableMoves:
-            uiOutline = Image(source='128h/outline_circ.png', pos=(move[0] * tile_size, move[1] * tile_size),
-                              size_hint=(0.125, 0.125))
+            uiOutline = Image(source='128h/outline_circ.png', pos=(move[0] * tile_size+35, move[1] * tile_size+35),
+                              size_hint=(None, None),
+                              size=(tile_size, tile_size))
             self.outlines.append(uiOutline)
             self.pieceLayout.add_widget(uiOutline)
 
     def set_center(self, piece, centerX, centerY):
-        uiTile = (tile_size // 2)
+        uiTile = (tile_size // 2) + 35
         piece.set_center_x(centerX * tile_size + uiTile)
         piece.set_center_y(centerY * tile_size + uiTile)
 

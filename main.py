@@ -25,11 +25,8 @@ class ChessBoardUI:
         for i in range(8):
             for j in range(8):
                 color = 'square brown dark' if (i + j) % 2 == 0 else 'square brown light'
-                tile = Image(source=f'128h/{color}_png_128px.png')
-                tile.pos = (self.tile_size * i, self.tile_size * j)
-                tile.size = (self.tile_size, self.tile_size)
                 self.layout.add_widget(Image(source=f'128h/{color}_png_128px.png',
-                                             pos=(self.tile_size * i, self.tile_size * j),
+                                             pos=(35+self.tile_size * i, 35+self.tile_size * j),
                                              size_hint=(None, None),
                                              size=(self.tile_size, self.tile_size)))
 
@@ -46,7 +43,7 @@ class ChessBoardUI:
                 if self.board[i][j] != '-':
                     currPiece = self.board[i][j]
                     currPiece.source = f'128h/{currPiece.get_piece_color()}_{currPiece}_png_128px.png'
-                    currPiece.pos = (self.tile_size * i, self.tile_size * j)
+                    currPiece.pos = (35+self.tile_size * i, 35+self.tile_size * j)
 
                     currPiece.set_engine(self.gameEng)
 
