@@ -49,6 +49,7 @@ class GameEngine:
         self.kingSquare = None
         self.player1 = None
         self.player2 = None
+        self.isGameOver = False
         #self.layout = FloatLayout()
 
     def createBoard(self):

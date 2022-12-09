@@ -112,7 +112,7 @@ class DragPiece(DragBehavior, Image, Piece):
         #    print(round(self.get_center_x()) // tile_size)
         #    #print((round(self.get_center_x()) // tile_size) + 35)
         #    print((round(self.get_center_x()) // (tile_size+self.offset)))
-        if (centerX, centerY) in self.availableMoves: #and self.get_piece_color() == "w":
+        if (centerX, centerY) in self.availableMoves and not self.engine.isGameOver: #and self.get_piece_color() == "w":
             if self.grabbed:
                 self.set_center(self, centerX, centerY)
                 # TODO: Refactoring
@@ -127,6 +127,7 @@ class DragPiece(DragBehavior, Image, Piece):
                 self.is_already_moved(True)
 
                 if self.engine.is_checkmate(self.enemy):
+                    self.engine.isGameOver = True
                     print(f"CHECK MATE, winner is: {self.get_piece_color()}")
                     popup = GameEndPopup()
                     winner = "Fehér Játékos (Te)" if self.get_piece_color() == "w" else "Fekete Játékos (Gép)"
@@ -159,7 +160,7 @@ class DragPiece(DragBehavior, Image, Piece):
     def on_touch_down(self, touch):
         super(DragPiece, self).on_touch_down(touch)
 
-        if self.collide_point(*touch.pos): #and self.get_piece_color() == "w":
+        if self.collide_point(*touch.pos) and not self.engine.isGameOver: #and self.get_piece_color() == "w":
             self.generate_moves()
             #print(self.availableMoves)
             self.engine.legal_moves(self, self.enemy)
