@@ -1,20 +1,19 @@
-from kivy.uix.floatlayout import FloatLayout
-
-import piece
+import itertools
+import pieces
 
 
 class Player:
-    def __init__(self, pieces):
-        self.pieces = pieces
+    def __init__(self, playerPieces):
+        self.pieces = playerPieces
 
 
 def get_piece(char):
-    if char == 'k': return piece.King()
-    if char == 'q': return piece.Queen()
-    if char == 'b': return piece.Bishop()
-    if char == 'n': return piece.Knight()
-    if char == 'r': return piece.Rook()
-    if char == 'p': return piece.Pawn()
+    if char == 'k': return pieces.King()
+    if char == 'q': return pieces.Queen()
+    if char == 'b': return pieces.Bishop()
+    if char == 'n': return pieces.Knight()
+    if char == 'r': return pieces.Rook()
+    if char == 'p': return pieces.Pawn()
 
 
 def positions_from_FEN(fenStr):
@@ -54,15 +53,14 @@ class GameEngine:
         #self.layout = FloatLayout()
 
     def createBoard(self):
-        for i in range(8):
-            for j in range(8):
-                currPiece = self.board[i][j]
-                if currPiece != '-':
-                    self.board[i][j] = get_piece(currPiece.lower())
-                    self.board[i][j].set_piece_color('w' if currPiece.islower() else 'b')
-                    self.board[i][j].set_coords(i, j)
+        for i, j in itertools.product(range(8), range(8)):
+            currPiece = self.board[i][j]
+            if currPiece != '-':
+                self.board[i][j] = get_piece(currPiece.lower())
+                self.board[i][j].set_piece_color('w' if currPiece.islower() else 'b')
+                self.board[i][j].set_coords(i, j)
 
-                    self.blacks.append(self.board[i][j]) \
+                self.blacks.append(self.board[i][j]) \
                         if self.board[i][j].get_piece_color() == 'b' else self.whites.append(self.board[i][j])
         self.player1 = Player(self.blacks)
         self.player2 = Player(self.whites)
@@ -118,17 +116,16 @@ class GameEngine:
         self.set_king_square(playerPiece.get_piece_color())
         kingX, kingY = self.kingSquare
         king = self.board[kingX][kingY]
-        overRook = self.board[kingX][7]
-        bottomRook = self.board[kingX][0]
-
         if not king.alreadyMoved:
-            if type(bottomRook) == piece.Rook and not bottomRook.alreadyMoved:
-                if self.board[kingX][kingY-1] == "-" and self.board[kingX][kingY-2] == "-":
-                    king.availableMoves.append((kingX, kingY-2))
-            if type(overRook) == piece.Rook and not overRook.alreadyMoved:
-                if self.board[kingX][kingY+1] == "-" and self.board[kingX][kingY+2] == "-"\
-                        and self.board[kingX][kingY+3] == "-":
-                    king.availableMoves.append((kingX, kingY+2))
+            bottomRook = self.board[kingX][0]
+
+            if type(bottomRook) == pieces.Rook and not bottomRook.alreadyMoved and self.board[kingX][kingY - 1] == "-" \
+                    and self.board[kingX][kingY - 2] == "-":
+                king.availableMoves.append((kingX, kingY-2))
+            overRook = self.board[kingX][7]
+            if type(overRook) == pieces.Rook and not overRook.alreadyMoved and self.board[kingX][kingY + 1] == "-" \
+                    and self.board[kingX][kingY + 2] == "-" and self.board[kingX][kingY + 3] == "-":
+                king.availableMoves.append((kingX, kingY+2))
 
     def do_castling(self):
         print("castling")
@@ -137,23 +134,24 @@ class GameEngine:
 
         if kingY == 1:
             print(self.board[kingX][0])
-            rook = self.board[kingX][0]
-            self.board[kingX][0] = "-"
-            self.board[kingX][kingY+1] = rook
-            self.board[kingX][kingY+1].set_coords(kingX, kingY + 1)
+            self.set_rook_pos(kingX, 0, (kingX, kingY+1))
         elif kingY == 5:
-            rook = self.board[kingX][7]
-            self.board[kingX][7] = "-"
-            self.board[kingX][kingY-1] = rook
-            self.board[kingX][kingY-1].set_coords(kingX, kingY-1)
-            print(f"BOTTOMROOK: {rook.coordinates}")
-            self.board[kingX][kingY-1].set_center(self.board[kingX][kingY-1], kingX, kingY-1)
+            print(self.board[kingX][0])
+            self.set_rook_pos(kingX, 7, (kingX, kingY - 1))
 
         print(f"BOTTOMROOK: {rook}")
 
         #self.board[kingX][kingY+1] = bottomRook
         #print(f"king feletti hely: {self.board[kingX][kingY + 1]}")
         #self.board[kingX][kingY+1].set_coords(kingX, kingY + 1)
+
+    def set_rook_pos(self, kingX, rookY, newPos):
+        rook = self.board[kingX][rookY]
+        self.board[kingX][rookY] = "-"
+        rookX, rookY = newPos
+        self.board[rookX][rookY] = rook
+        self.board[rookX][rookY].set_coords(rookX, rookY)
+        self.board[rookX][rookY].set_center(self.board[rookX][rookY], rookX, rookY)
 
     def make_move(self, move, argPiece):
         """
@@ -178,7 +176,7 @@ class GameEngine:
 
         #print(f"{self} made move: {self.prevBoard}")
 
-        if argPiece.coordinates == self.kingSquare and (y == 1 or y == 5):
+        if argPiece.coordinates == self.kingSquare and y in [1, 5]:
             self.do_castling()
 
         self.set_king_square(argPiece.get_piece_color())
@@ -204,7 +202,7 @@ class GameEngine:
     def set_king_square(self, pieceColor):
         for i in range(8):
             for j in range(8):
-                if type(self.board[i][j]) == piece.King and self.board[i][j].get_piece_color() == pieceColor:
+                if type(self.board[i][j]) == pieces.King and self.board[i][j].get_piece_color() == pieceColor:
                     self.kingSquare = (i, j)
                     #print(f"FOUND KING {self.kingSquare}")
                     break
@@ -288,20 +286,20 @@ class GameEngine:
         kingValue = 900
 
         piece_dict = {
-            piece.Pawn: pawnValue,
-            piece.Knight: knightValue,
-            piece.Bishop: bishopValue,
-            piece.Rook: rookValue,
-            piece.Queen: queenValue,
-            piece.King: kingValue
+            pieces.Pawn: pawnValue,
+            pieces.Knight: knightValue,
+            pieces.Bishop: bishopValue,
+            pieces.Rook: rookValue,
+            pieces.Queen: queenValue,
+            pieces.King: kingValue
         }
 
-        valueCount = 0
-        for pieceKey, pieceValue in piece_dict.items():
-            valueCount += self.get_count(pieceKey, color) * pieceValue
+        #valueCount = 0
+        #for pieceKey, pieceValue in piece_dict.items():
+        #    valueCount += self.get_count(pieceKey, color) * pieceValue
+        #return valueCount
 
-        return valueCount
+        return sum(self.get_count(pieceKey, color) * pieceValue for pieceKey, pieceValue in piece_dict.items())
 
     def get_count(self, key, color):
-        #print(sum([len([e for e in rows if type(e) == key and e.get_piece_color() == color]) for rows in self.board]))
-        return sum([len([e for e in rows if type(e) == key and e.get_piece_color() == color]) for rows in self.board])
+        return sum(len([e for e in rows if type(e) == key and e.get_piece_color() == color]) for rows in self.board)
