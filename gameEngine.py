@@ -33,7 +33,7 @@ def positions_from_FEN(fenStr):
 class GameEngine:
     inf = 999999
     initialFEN = 'rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR/ w KQkq - 0 1'
-    
+
     def __init__(self, initialFEN=initialFEN):
         self.prevBoard = None
         self.board = positions_from_FEN(initialFEN)
@@ -50,7 +50,7 @@ class GameEngine:
         self.player1 = None
         self.player2 = None
         self.isGameOver = False
-        #self.layout = FloatLayout()
+        # self.layout = FloatLayout()
 
     def createBoard(self):
         for i, j in itertools.product(range(8), range(8)):
@@ -61,7 +61,7 @@ class GameEngine:
                 self.board[i][j].set_coords(i, j)
 
                 self.blacks.append(self.board[i][j]) \
-                        if self.board[i][j].get_piece_color() == 'b' else self.whites.append(self.board[i][j])
+                    if self.board[i][j].get_piece_color() == 'b' else self.whites.append(self.board[i][j])
         self.player1 = Player(self.blacks)
         self.player2 = Player(self.whites)
 
@@ -91,19 +91,19 @@ class GameEngine:
         self.can_castling(playerPiece)
         for move in playerPiece.availableMoves:
             self.make_move(move, playerPiece)
-            #print(f"MOVED: {move}")
+            # print(f"MOVED: {move}")
             for enemyPiece in enemy.pieces:
                 enemyPiece.generate_moves()
                 if self.kingSquare in enemyPiece.availableMoves:
                     invalid_moves.add(move)
-                    #print(f"{self.kingSquare} - {enemyPiece} - {enemyPiece.availableMoves}")
+                    # print(f"{self.kingSquare} - {enemyPiece} - {enemyPiece.availableMoves}")
             self.unmake_move()
 
-        #print(invalid_moves) #[0,2 és 0,2]
+        # print(invalid_moves) #[0,2 és 0,2]
         for inv_move in invalid_moves:
-            #print(inv_move)
+            # print(inv_move)
             playerPiece.availableMoves.remove(inv_move)
-        #return valid_moves
+        # return valid_moves
 
     def is_checkmate(self, player):
         for myPiece in player.pieces:
@@ -111,6 +111,20 @@ class GameEngine:
             if myPiece.availableMoves:
                 return False
         return True
+
+    def is_pawn_changed(self, piece):
+        if type(piece) == pieces.Pawn and self.whiteTurn and piece.coordinates[0] == 7:
+            prevPiece = piece
+            coordinates = piece.coordinates
+            layout = piece.pieceLayout
+            piece = pieces.Queen()
+            piece.source = '128h/w_queen_png_128px.png'
+            piece.set_engine(self, layout)
+            piece.set_coords(coordinates[0], coordinates[1])
+            self.board[coordinates[0]][coordinates[1]] = piece
+            piece.player.pieces.append(piece)
+            return prevPiece, piece
+        return None
 
     def can_castling(self, playerPiece):
         self.set_king_square(playerPiece.get_piece_color())
@@ -121,11 +135,11 @@ class GameEngine:
 
             if type(bottomRook) == pieces.Rook and not bottomRook.alreadyMoved and self.board[kingX][kingY - 1] == "-" \
                     and self.board[kingX][kingY - 2] == "-":
-                king.availableMoves.append((kingX, kingY-2))
+                king.availableMoves.append((kingX, kingY - 2))
             overRook = self.board[kingX][7]
             if type(overRook) == pieces.Rook and not overRook.alreadyMoved and self.board[kingX][kingY + 1] == "-" \
                     and self.board[kingX][kingY + 2] == "-" and self.board[kingX][kingY + 3] == "-":
-                king.availableMoves.append((kingX, kingY+2))
+                king.availableMoves.append((kingX, kingY + 2))
 
     def do_castling(self):
         print("castling")
@@ -134,16 +148,16 @@ class GameEngine:
 
         if kingY == 1:
             print(self.board[kingX][0])
-            self.set_rook_pos(kingX, 0, (kingX, kingY+1))
+            self.set_rook_pos(kingX, 0, (kingX, kingY + 1))
         elif kingY == 5:
             print(self.board[kingX][0])
             self.set_rook_pos(kingX, 7, (kingX, kingY - 1))
 
         print(f"BOTTOMROOK: {rook}")
 
-        #self.board[kingX][kingY+1] = bottomRook
-        #print(f"king feletti hely: {self.board[kingX][kingY + 1]}")
-        #self.board[kingX][kingY+1].set_coords(kingX, kingY + 1)
+        # self.board[kingX][kingY+1] = bottomRook
+        # print(f"king feletti hely: {self.board[kingX][kingY + 1]}")
+        # self.board[kingX][kingY+1].set_coords(kingX, kingY + 1)
 
     def set_rook_pos(self, kingX, rookY, newPos):
         rook = self.board[kingX][rookY]
@@ -174,10 +188,11 @@ class GameEngine:
             self.removingPiece = self.targetTile
             argPiece.enemy.pieces.remove(self.targetTile)
 
-        #print(f"{self} made move: {self.prevBoard}")
+        # print(f"{self} made move: {self.prevBoard}")
 
         if argPiece.coordinates == self.kingSquare and y in [1, 5]:
             self.do_castling()
+        #self.pawn_changing(argPiece)
 
         self.set_king_square(argPiece.get_piece_color())
 
@@ -185,7 +200,7 @@ class GameEngine:
         originalX, originalY = self.originalPieceCoords
         self.board[originalX][originalY] = self.originalPiece
         self.originalPiece.set_coords(originalX, originalY)
-        #print(f"{originalX} and {originalY}")
+        # print(f"{originalX} and {originalY}")
 
         targetX, targetY = self.targetTileCoords
         self.board[targetX][targetY] = self.targetTile
@@ -198,13 +213,12 @@ class GameEngine:
         print(self.prevBoard)
         print(self.board)
 
-
     def set_king_square(self, pieceColor):
         for i in range(8):
             for j in range(8):
                 if type(self.board[i][j]) == pieces.King and self.board[i][j].get_piece_color() == pieceColor:
                     self.kingSquare = (i, j)
-                    #print(f"FOUND KING {self.kingSquare}")
+                    # print(f"FOUND KING {self.kingSquare}")
                     break
 
     def minimax(self, player, depth, maxPlayer, alpha, beta):
@@ -251,7 +265,7 @@ class GameEngine:
                         break
             return minEvaluation
 
-    #def negamax(self, player, depth):
+    # def negamax(self, player, depth):
     #    if depth == 0:
     #        return self.evaluate()
     #
@@ -294,10 +308,10 @@ class GameEngine:
             pieces.King: kingValue
         }
 
-        #valueCount = 0
-        #for pieceKey, pieceValue in piece_dict.items():
+        # valueCount = 0
+        # for pieceKey, pieceValue in piece_dict.items():
         #    valueCount += self.get_count(pieceKey, color) * pieceValue
-        #return valueCount
+        # return valueCount
 
         return sum(self.get_count(pieceKey, color) * pieceValue for pieceKey, pieceValue in piece_dict.items())
 

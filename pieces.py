@@ -97,16 +97,18 @@ class Pawn(DragPiece):
                 self.genCrossMove(startX + 1, startY + 1)
                 self.genCrossMove(startX + 1, startY - 1)
 
-                if self.board[startX + i][startY] != '-':
-                    break
-                self.availableMoves.append((startX + i, startY))
+                if self.isInside(startX + i, startY):
+                    if self.board[startX + i][startY] != '-':
+                        break
+                    self.availableMoves.append((startX + i, startY))
             else:
                 self.genCrossMove(startX - 1, startY + 1)
                 self.genCrossMove(startX - 1, startY - 1)
 
-                if self.board[startX - i][startY] != '-':
-                    break
-                self.availableMoves.append((startX - i, startY))
+                if self.isInside(startX - i, startY):
+                    if self.board[startX - i][startY] != '-':
+                        break
+                    self.availableMoves.append((startX - i, startY))
 
     def genCrossMove(self, targetX, targetY):
         if self.isInside(targetX, targetY) and self.board[targetX][targetY] in self.enemy.pieces:

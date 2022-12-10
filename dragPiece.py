@@ -32,13 +32,19 @@ class DragPiece(DragBehavior, Image, Piece):
 
         if (centerX, centerY) in self.availableMoves and not self.engine.isGameOver: #and self.get_piece_color() == "w":
             if self.grabbed:
-
+                self.set_center(self, centerX, centerY)
                 # TODO: Refactoring
+                self.engine.whiteTurn = True
 
                 prevBoard = self.engine.board
                 print(f"{self} MAIN1 made move: {self.engine.prevBoard}")
                 self.engine.make_move((centerX, centerY), self)
-                self.set_center(self, centerX, centerY)
+
+                pawn_to_queen = self.engine.is_pawn_changed(self)
+                if pawn_to_queen is not None:
+                    self.pieceLayout.add_widget(pawn_to_queen[1])
+                    self.pieceLayout.remove_widget(pawn_to_queen[0])
+                    self.set_center(pawn_to_queen[1], centerX, centerY)
 
                 self.engine.prevBoard = prevBoard
                 print(f"{self} MAIN2 made move: {self.engine.prevBoard}")
@@ -62,8 +68,6 @@ class DragPiece(DragBehavior, Image, Piece):
                 # print(len(self.enemy.pieces))
                 # self.engine.unmake_move()
                 # print(len(self.enemy.pieces))
-
-                self.engine.whiteTurn = True
 
                 computerMove = self.computer_move()
                 computerMove[0].is_already_moved(True)
