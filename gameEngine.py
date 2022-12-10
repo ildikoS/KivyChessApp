@@ -36,6 +36,7 @@ class GameEngine:
     initialFEN = 'rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR/ w KQkq - 0 1'
     
     def __init__(self, initialFEN=initialFEN):
+        self.prevBoard = None
         self.board = positions_from_FEN(initialFEN)
         self.blacks = []
         self.whites = []
@@ -65,6 +66,8 @@ class GameEngine:
                         if self.board[i][j].get_piece_color() == 'b' else self.whites.append(self.board[i][j])
         self.player1 = Player(self.blacks)
         self.player2 = Player(self.whites)
+
+        self.prevBoard = self.board
 
         return self.board
 
@@ -173,6 +176,8 @@ class GameEngine:
             self.removingPiece = self.targetTile
             argPiece.enemy.pieces.remove(self.targetTile)
 
+        #print(f"{self} made move: {self.prevBoard}")
+
         if argPiece.coordinates == self.kingSquare and (y == 1 or y == 5):
             self.do_castling()
 
@@ -189,6 +194,12 @@ class GameEngine:
         if self.targetTile != "-":
             self.targetTile.set_coords(targetX, targetY)
             self.targetTile.player.pieces.append(self.targetTile)
+
+    def reset_step(self):
+        self.board = self.prevBoard
+        print(self.prevBoard)
+        print(self.board)
+
 
     def set_king_square(self, pieceColor):
         for i in range(8):

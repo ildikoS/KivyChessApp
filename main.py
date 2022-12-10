@@ -55,12 +55,23 @@ class ChessBoardUI:
         print(self.layout)
         self.layout.clear_widgets()
         self.gameEng = GameEngine()
-        self.draw_board()
         self.board = None
-        #self.layout = self.gameEng.layout
-        print(self.layout)
+        self.draw_board()
         self.draw_pieces()
-        print(self.board)
+
+
+class ReStepButton(Button):
+    def __init__(self, cb):
+        super(ReStepButton, self).__init__()
+        self.chessboard = cb
+
+    def on_touch_down(self, touch):
+        if self.collide_point(touch.x, touch.y):
+            print('down')
+            self.chessboard.gameEng.reset_step()
+            print(self.chessboard.board)
+
+        return super(ReStepButton, self).on_touch_down(touch)
 
 
 class NewGameButton(Button):
@@ -70,7 +81,6 @@ class NewGameButton(Button):
 
     def on_touch_down(self, touch):
         if self.collide_point(touch.x, touch.y):
-            print('down')
             self.chessboard.new_game()
 
         return super(NewGameButton, self).on_touch_down(touch)
@@ -93,6 +103,7 @@ class ChessApp(App):
 
         layout2 = FloatLayout()
         layout2.add_widget(NewGameButton(chessBoard))
+        layout2.add_widget(ReStepButton(chessBoard))
         layout2.add_widget(chessBoard.layout)
 
         gm.add_widget(layout2)

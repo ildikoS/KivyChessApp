@@ -1,3 +1,4 @@
+import copy
 import random
 
 from kivy.properties import StringProperty
@@ -112,12 +113,19 @@ class DragPiece(DragBehavior, Image, Piece):
         #    print(round(self.get_center_x()) // tile_size)
         #    #print((round(self.get_center_x()) // tile_size) + 35)
         #    print((round(self.get_center_x()) // (tile_size+self.offset)))
+
         if (centerX, centerY) in self.availableMoves and not self.engine.isGameOver: #and self.get_piece_color() == "w":
             if self.grabbed:
-                self.set_center(self, centerX, centerY)
+
                 # TODO: Refactoring
 
+                prevBoard = self.engine.board
+                print(f"{self} MAIN1 made move: {self.engine.prevBoard}")
                 self.engine.make_move((centerX, centerY), self)
+                self.set_center(self, centerX, centerY)
+
+                self.engine.prevBoard = prevBoard
+                print(f"{self} MAIN2 made move: {self.engine.prevBoard}")
 
                 removingPiece = self.engine.removingPiece
                 if removingPiece is not None:
@@ -141,9 +149,9 @@ class DragPiece(DragBehavior, Image, Piece):
 
                 self.engine.whiteTurn = True
 
-                #computerMove = self.computer_move()
-                #computerMove[0].is_already_moved(True)
-                #self.set_center(computerMove[0], computerMove[1][0], computerMove[1][1])
+                computerMove = self.computer_move()
+                computerMove[0].is_already_moved(True)
+                self.set_center(computerMove[0], computerMove[1][0], computerMove[1][1])
 
                 # if self.get_piece_color() == "b" else False
                 #print(randMove[0].engine.evaluate())
@@ -166,7 +174,6 @@ class DragPiece(DragBehavior, Image, Piece):
             self.engine.legal_moves(self, self.enemy)
             #print(self.availableMoves)
             self.grabbed = True
-
             self.drawAvailablePositions()
 
     def drawAvailablePositions(self):
