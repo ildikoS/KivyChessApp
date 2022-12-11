@@ -5,6 +5,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 
 
 # Configurate window settings
+import attributesconf
 from chessboardui import ChessBoardUI
 from gamebuttons import NewGameButton, ReStepButton
 
@@ -21,20 +22,36 @@ class GameScreen(Screen):
     pass
 
 
+class PracticeScreen(Screen):
+    pass
+
+
+def setLayout(layout, board):
+    layout.add_widget(NewGameButton(board))
+    layout.add_widget(ReStepButton(board))
+    layout.add_widget(board.layout)
+
+
 class ChessApp(App):
     def build(self):
         screenManager = ScreenManager()
         mainLayout = FloatLayout()
-        chessBoard = ChessBoardUI()
+        practiceLayout = FloatLayout()
 
-        mainLayout.add_widget(NewGameButton(chessBoard))
-        mainLayout.add_widget(ReStepButton(chessBoard))
-        mainLayout.add_widget(chessBoard.layout)
+        chessBoard = ChessBoardUI(attributesconf.mainFEN)
+        practiceBoard = ChessBoardUI(attributesconf.get_random_FEN())
+
+        setLayout(mainLayout, chessBoard)
+        setLayout(practiceLayout, practiceBoard)
 
         gameScreen = GameScreen()
-        screenManager.add_widget(MainScreen())
+        practiceScreen = PracticeScreen()
         gameScreen.add_widget(mainLayout)
+        practiceScreen.add_widget(practiceLayout)
+
+        screenManager.add_widget(MainScreen())
         screenManager.add_widget(gameScreen)
+        screenManager.add_widget(practiceScreen)
 
         return screenManager
 

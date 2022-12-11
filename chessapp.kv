@@ -46,6 +46,13 @@
             text: 'Start'
             on_press: root.manager.current = 'game'
 
+        Button:
+            size_hint: None, None
+            size: 200, 100
+            pos: 240, 200
+            text: 'Gyakorlás'
+            on_press: root.manager.current = 'practice'
+
 <GameScreen>:
     canvas.before:
         Color:
@@ -54,6 +61,15 @@
             pos: self.pos
             size: self.size
     name: "game"
+
+<PracticeScreen>:
+    canvas.before:
+        Color:
+            rgb: 58/255.0, 46/255.0, 46/255.0
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    name: "practice"
 
 #<GreenCircle>:
 #    Image:

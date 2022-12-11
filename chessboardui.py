@@ -10,9 +10,10 @@ from gameEngine import GameEngine
 class ChessBoardUI:
     tile_size = 80
 
-    def __init__(self, **kwargs):
+    def __init__(self, inputFEN, **kwargs):
         super().__init__(**kwargs)
-        self.gameEng = GameEngine()
+        self.inputFEN = inputFEN
+        self.gameEng = GameEngine(inputFEN)
         self.layout = FloatLayout() #self.gameEng.layout
         self.offset = 0
 
@@ -22,6 +23,8 @@ class ChessBoardUI:
         self.careTaker = CareTaker(self.gameEng)
         self.careTaker.save()
         print(self.gameEng.board)
+
+
 
     def draw_board(self):
         for i, j in itertools.product(range(8), range(8)):
@@ -46,6 +49,6 @@ class ChessBoardUI:
 
     def new_game(self):
         self.layout.clear_widgets()
-        self.gameEng = GameEngine()
+        self.gameEng = GameEngine(self.inputFEN)
         self.draw_board()
         self.draw_pieces()

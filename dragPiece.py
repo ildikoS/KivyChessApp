@@ -41,11 +41,7 @@ class DragPiece(DragBehavior, Image, Piece):
                 #self.careTaker.save()
                 self.engine.make_move((centerX, centerY), self)
 
-                pawn_to_queen = self.engine.is_pawn_changed(self)
-                if pawn_to_queen is not None:
-                    self.pieceLayout.add_widget(pawn_to_queen[1])
-                    self.pieceLayout.remove_widget(pawn_to_queen[0])
-                    self.set_center(pawn_to_queen[1], centerX, centerY)
+                self.change_pawn_to_queen(centerX, centerY)
 
                 removingPiece = self.engine.removingPiece
                 if removingPiece is not None:
@@ -66,10 +62,11 @@ class DragPiece(DragBehavior, Image, Piece):
                 # print(len(self.enemy.pieces))
                 # self.engine.unmake_move()
                 # print(len(self.enemy.pieces))
-
-                computerMove = self.computer_move()
-                computerMove[0].is_already_moved(True)
-                self.set_center(computerMove[0], computerMove[1][0], computerMove[1][1])
+                if not self.engine.isGameOver:
+                    computerMove = self.computer_move()
+                    computerMove[0].is_already_moved(True)
+                    computerMove[0].change_pawn_to_queen(computerMove[1][0], computerMove[1][1])
+                    self.set_center(computerMove[0], computerMove[1][0], computerMove[1][1])
 
                 # if self.get_piece_color() == "b" else False
                 #print(randMove[0].engine.evaluate())
@@ -107,6 +104,13 @@ class DragPiece(DragBehavior, Image, Piece):
         uiTile = (tile_size // 2) + self.offset
         piece.set_center_x(centerX * tile_size + uiTile)
         piece.set_center_y(centerY * tile_size + uiTile)
+
+    def change_pawn_to_queen(self, centerX, centerY):
+        pawn_to_queen = self.engine.is_pawn_changed(self)
+        if pawn_to_queen is not None:
+            self.pieceLayout.add_widget(pawn_to_queen[1])
+            self.pieceLayout.remove_widget(pawn_to_queen[0])
+            self.set_center(pawn_to_queen[1], centerX, centerY)
 
 
 class GameEndPopup(Popup):

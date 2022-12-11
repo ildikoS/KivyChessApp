@@ -33,12 +33,11 @@ def positions_from_FEN(fenStr):
 
 class GameEngine:
     inf = 999999
-    initialFEN = 'rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR/ w KQkq - 0 1'
 
-    def __init__(self, initialFEN=initialFEN):
+    def __init__(self, inputFEN):
         self.careTaker = None
         self.prevBoard = None
-        self.board = positions_from_FEN(initialFEN)
+        self.board = positions_from_FEN(inputFEN)
         self.blacks = []
         self.whites = []
         self.whiteTurn = True
@@ -55,6 +54,7 @@ class GameEngine:
         # self.layout = FloatLayout()
 
     def createBoard(self):
+        print(self.board)
         for i, j in itertools.product(range(8), range(8)):
             currPiece = self.board[i][j]
             if currPiece != '-':
@@ -131,18 +131,28 @@ class GameEngine:
         return True
 
     def is_pawn_changed(self, piece):
-        if type(piece) == pieces.Pawn and self.whiteTurn and piece.coordinates[0] == 7:
-            prevPiece = piece
-            coordinates = piece.coordinates
-            layout = piece.pieceLayout
-            piece = pieces.Queen()
-            piece.source = '128h/w_queen_png_128px.png'
-            piece.set_engine(self, layout)
-            piece.set_coords(coordinates[0], coordinates[1])
-            self.board[coordinates[0]][coordinates[1]] = piece
-            piece.player.pieces.append(piece)
-            return prevPiece, piece
+        if type(piece) == pieces.Pawn:
+            print(piece)
+            if self.whiteTurn and piece.coordinates[0] == 7:
+                print("WHITE")
+                return self.change_pawn(piece, 'w')
+            elif self.whiteTurn and piece.coordinates[0] == 0:
+                print("BLACK")
+                return self.change_pawn(piece, 'b')
         return None
+
+    def change_pawn(self, pawn, color):
+        prevPiece = pawn
+        coordinates = pawn.coordinates
+        layout = pawn.pieceLayout
+        piece = pieces.Queen()
+        piece.source = f'128h/{color}_queen_png_128px.png'
+        piece.set_engine(self, layout)
+        piece.set_coords(coordinates[0], coordinates[1])
+        self.board[coordinates[0]][coordinates[1]] = piece
+        piece.player.pieces.append(piece)
+        print(piece)
+        return prevPiece, piece
 
     def can_castling(self, playerPiece):
         self.set_king_square(playerPiece.get_piece_color())
@@ -164,12 +174,13 @@ class GameEngine:
         kingX, kingY = self.kingSquare
         rook = None
 
-        if kingY == 1:
-            print(self.board[kingX][0])
-            self.set_rook_pos(kingX, 0, (kingX, kingY + 1))
-        elif kingY == 5:
-            print(self.board[kingX][0])
-            self.set_rook_pos(kingX, 7, (kingX, kingY - 1))
+        if type(self.board[kingX][0]) == pieces.Rook:
+            if kingY == 1:
+                print(self.board[kingX][0])
+                self.set_rook_pos(kingX, 0, (kingX, kingY + 1))
+            elif kingY == 5:
+                print(self.board[kingX][0])
+                self.set_rook_pos(kingX, 7, (kingX, kingY - 1))
 
         print(f"BOTTOMROOK: {rook}")
 
