@@ -10,8 +10,8 @@ from chessboardui import ChessBoardUI
 from gamebuttons import NewGameButton, ReStepButton
 
 Config.set('graphics', 'width', '720')
-Config.set('graphics', 'height', '860')
-# Config.set('graphics', 'resizable', '0')
+Config.set('graphics', 'height', '1020')
+Config.set('graphics', 'resizable', '0')
 
 
 class MainScreen(Screen):
@@ -27,6 +27,7 @@ class PracticeScreen(Screen):
 
 
 def setLayout(layout, board):
+    #layout.add_widget(BackButton())
     layout.add_widget(NewGameButton(board))
     layout.add_widget(ReStepButton(board))
     layout.add_widget(board.layout)
