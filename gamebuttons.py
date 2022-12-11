@@ -9,8 +9,9 @@ class ReStepButton(Button):
     def on_touch_down(self, touch):
         if self.collide_point(touch.x, touch.y):
             print('down')
-            self.chessboard.gameEng.reset_step()
-            print(self.chessboard.board)
+            print(self.chessboard.gameEng.board)
+            self.chessboard.careTaker.restore(0)
+            print(self.chessboard.gameEng.board)
 
         return super(ReStepButton, self).on_touch_down(touch)
 

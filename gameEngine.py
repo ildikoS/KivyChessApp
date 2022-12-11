@@ -1,5 +1,6 @@
 import itertools
 import pieces
+from Memento import CareTaker, Memento
 
 
 class Player:
@@ -35,6 +36,7 @@ class GameEngine:
     initialFEN = 'rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR/ w KQkq - 0 1'
 
     def __init__(self, initialFEN=initialFEN):
+        self.careTaker = None
         self.prevBoard = None
         self.board = positions_from_FEN(initialFEN)
         self.blacks = []
@@ -68,6 +70,22 @@ class GameEngine:
         self.prevBoard = self.board
 
         return self.board
+
+    #def memento(self, state):
+        #self.careTaker = CareTaker(self)
+
+    @property
+    def memento(self):
+        "A `getter` for the characters attributes as a Memento"
+        return Memento(
+            self.board,
+            self.originalPieceCoords
+        )
+
+    @memento.setter
+    def memento(self, memento):
+        self.board = memento.board
+        self.originalPieceCoords = memento.originalPieceCoords
 
     def checkCollision(self, enemy, playerPiece):
         """
@@ -208,10 +226,10 @@ class GameEngine:
             self.targetTile.set_coords(targetX, targetY)
             self.targetTile.player.pieces.append(self.targetTile)
 
-    def reset_step(self):
-        self.board = self.prevBoard
-        print(self.prevBoard)
-        print(self.board)
+    #def reset_step(self):
+    #    self.board = self.prevBoard
+    #    print(self.prevBoard)
+    #    print(self.board)
 
     def set_king_square(self, pieceColor):
         for i in range(8):
@@ -240,6 +258,7 @@ class GameEngine:
                 self.legal_moves(currPiece, currPiece.enemy)
                 for move in currPiece.availableMoves:
                     self.make_move(move, currPiece)
+                    #print(f"{currPiece.get_piece_color()} lepett")
                     currEvaluation = self.minimax(currPiece.enemy, depth - 1, False, alpha, beta)
                     if currEvaluation > maxEvaluation:
                         maxEvaluation = max(currEvaluation, maxEvaluation)
@@ -255,6 +274,7 @@ class GameEngine:
                 self.legal_moves(currPiece, currPiece.enemy)
                 for move in currPiece.availableMoves:
                     self.make_move(move, currPiece)
+                    #print(f"{currPiece.get_piece_color()} lepett")
                     currEvaluation = self.minimax(currPiece.enemy, depth - 1, True, alpha, beta)
                     if currEvaluation < minEvaluation:
                         minEvaluation = min(currEvaluation, minEvaluation)
@@ -265,28 +285,14 @@ class GameEngine:
                         break
             return minEvaluation
 
-    # def negamax(self, player, depth):
-    #    if depth == 0:
-    #        return self.evaluate()
+    #def move_ordering(self):
     #
-    #    maxEvaluation = -self.inf
-    #    for currPiece in player.pieces:
-    #        original_move = currPiece.coordinates
-    #        for move in currPiece.availableMoves:
-    #            self.make_move(move, currPiece)
-    #            currEvaluation = -self.negamax(depth - 1, player)
-    #            if currEvaluation > maxEvaluation:
-    #                maxEvaluation = max(currEvaluation, maxEvaluation)
-    #            self.make_move(original_move, currPiece)
-    #
-    #    return maxEvaluation
 
     def evaluate(self):
         whiteScore = self.count_pieces("w")
         blackScore = self.count_pieces("b")
 
         evaluation = whiteScore - blackScore
-        # negamax: evaluation = materialWeight * (whiteScore - blackScore)
 
         whoToMove = 1 if self.whiteTurn else -1
         return evaluation * whoToMove

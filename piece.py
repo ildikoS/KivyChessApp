@@ -4,6 +4,8 @@ from kivy.uix.behaviors import DragBehavior
 from kivy.uix.image import Image
 from kivy.uix.popup import Popup
 
+from Memento import CareTaker
+
 tile_size = 80
 
 
@@ -40,31 +42,19 @@ class Piece:
 
         :return: With a random move of a random enemy piece
         """
-        #randomPiece = random.choice(self.enemy.pieces)
-        #randomPiece.generate_moves()
-        #print(randomPiece.availableMoves)
-
+        #print(self.board)
         self.engine.minimax(self.enemy, 1, False, -9999, 9999)
+        #print(self.board)
 
         compPiece = self.engine.bestPieceWithMove[0]
         compMove = self.engine.bestPieceWithMove[1]
 
-       #while not randomPiece.availableMoves:
-       #    randomPiece = random.choice(self.enemy.pieces)
-       #    randomPiece.generate_moves()
-       #randomMove = random.choice(randomPiece.availableMoves)
-        # print(f"made a move : {randomPiece} moved to {randomMove}")
         print(compPiece.availableMoves)
         compPiece.engine.make_move(compMove, compPiece)
 
         removingPiece = compPiece.engine.removingPiece
         if removingPiece is not None:
             compPiece.pieceLayout.remove_widget(removingPiece)
-
-        #isCollide = randomPiece.engine.checkCollision(randomPiece.enemy, randomPiece)
-        #if isCollide:
-        #    randomPiece.engine.layout.remove_widget(isCollide)
-            # randomPiece.enemy.pieces.remove(isCollide)
 
         return compPiece, compMove
 
@@ -78,6 +68,8 @@ class Piece:
 
         self.player = self.engine.player1 if self.get_piece_color() == 'b' else self.engine.player2
         self.enemy = self.engine.player2 if self.player == self.engine.player1 else self.engine.player1
+
+        #self.careTaker = CareTaker(self.engine)
 
         self.pieceLayout = layout
 
