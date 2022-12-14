@@ -8,16 +8,14 @@
 <NewGameButton>:
     text: "Új játék"
     font_size: 15
-    size: 200, 100
-    size_hint: None, None
-    pos: 100, 680
+    size_hint: .2, .1
+    pos_hint: {'x': .1, 'y': .8}
 
 <ReStepButton>:
     text: "Visszalépés"
     font_size: 15
-    size: 200, 100
-    size_hint: None, None
-    pos: 400, 680
+    size_hint: .2, .1
+    pos_hint: {'x': .6, 'y': .8}
 
 <gameEndPopup>:
     title: "Játék vége"
@@ -38,21 +36,19 @@
     FloatLayout:
         Image:
             source: f'128h/title.png'
-            pos: 30, 300
+            pos_hint: {'x': 0.05, 'y': 0.4}
 
         Button:
-            size_hint: None, None
-            size: 200, 100
-            pos: 240, 420
+            size_hint: 0.3, 0.1
+            pos_hint: {'x': .35, 'y': .5}
             text: 'Start'
             on_release:
                 app.root.current =  'game'
                 root.manager.transition.direction = "left"
 
         Button:
-            size_hint: None, None
-            size: 200, 100
-            pos: 240, 200
+            size_hint: 0.3, 0.1
+            pos_hint: {'x': .35, 'y': .25}
             text: 'Gyakorlás'
             on_release:
                 app.root.current =  'practice'
@@ -69,9 +65,8 @@
     Button:
         text: "Vissza"
         font_size: 15
-        size: 100, 50
-        size_hint: None, None
-        pos: 50, 920
+        size_hint: 0.1, 0.05
+        pos_hint: {'x': .05, 'y': .92}
         on_release:
             app.root.current = 'main'
             root.manager.transition.direction = "right"
@@ -87,9 +82,8 @@
     Button:
         text: "Vissza"
         font_size: 15
-        size: 100, 50
-        size_hint: None, None
-        pos: 50, 920
+        size_hint: 0.1, 0.05
+        pos_hint: {'x': .05, 'y': .92}
         on_release:
             app.root.current = 'main'
             root.manager.transition.direction = "right"

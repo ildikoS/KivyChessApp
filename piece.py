@@ -37,7 +37,7 @@ class Piece:
         :return: With a random move of a random enemy piece
         """
         #print(self.board)
-        self.engine.minimax(self.enemy, 2, False, -9999, 9999)
+        self.engine.minimax(self.enemy, 1, False, -9999, 9999)
         #print(self.board)
 
         compPiece = self.engine.bestPieceWithMove[0]

@@ -34,7 +34,7 @@ class ChessBoardUI:
         for i, j in itertools.product(range(8), range(8)):
             if self.gameEng.board[i][j] != '-':
                 currPiece = self.gameEng.board[i][j]
-                currPiece.source = f'128h/{currPiece.get_piece_color()}_{currPiece}_png_128px.png'
+                currPiece.source = f'128px/{currPiece.get_piece_color()}_{currPiece}_png_shadow_128px.png'
                 currPiece.pos = (self.offset + self.tile_size * i, self.offset + self.tile_size * j)
                 currPiece.set_engine(self.gameEng, self.layout)
 
@@ -44,7 +44,7 @@ class ChessBoardUI:
         for i, j in itertools.product(range(8), range(8)):
             currPiece = self.gameEng.board[i][j]
             if self.gameEng.board[i][j] != '-' and currPiece not in self.layout.children:
-                currPiece.source = f'128h/{currPiece.get_piece_color()}_{currPiece}_png_128px.png'
+                currPiece.source = f'128px/{currPiece.get_piece_color()}_{currPiece}_png_shadow_128px.png'
                 self.layout.add_widget(currPiece)
 
     def new_game(self):

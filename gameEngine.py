@@ -154,7 +154,7 @@ class GameEngine:
         coordinates = pawn.coordinates
         layout = pawn.pieceLayout
         piece = pieces.Queen()
-        piece.source = f'128h/{color}_queen_png_128px.png'
+        piece.source = f'128px/{color}_queen_png_shadow_128px.png'
         piece.set_engine(self, layout)
         piece.set_coords(coordinates[0], coordinates[1])
         self.board[coordinates[0]][coordinates[1]] = piece
