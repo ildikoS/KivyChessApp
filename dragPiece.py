@@ -40,6 +40,11 @@ class DragPiece(DragBehavior, Image, Piece):
                 #self.engine.careTaker.save()
                 #self.careTaker.save()
                 self.engine.make_move((centerX, centerY), self)
+                #print(f"LÉPÉST CSINÁLT GGGGGGG: {self.engine.pieceStepsList}")
+                #print(self.engine.pieceStepsList[0].board)
+                #print(self.engine.board)
+                #print("address of a:", id(self.engine.pieceStepsList[0].board))
+                #print("addrss of b", id(self.engine.board))
 
                 self.change_pawn_to_queen(centerX, centerY)
 

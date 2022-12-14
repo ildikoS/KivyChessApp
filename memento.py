@@ -6,10 +6,10 @@ class Memento:
     A container of state
     """
 
-    def __init__(self, board, originalPieceCoords):
-        self.board = list(board)
-        print(self.board)
-        self.originalPieceCoords = originalPieceCoords
+    def __init__(self, blacks):
+        #self.piece = piece
+        #self.move = move
+        self.blacks = blacks
 
 
 class Originator:
@@ -18,29 +18,29 @@ class Originator:
     """
 
     def __init__(self):
-        self._state = ""
+        self.blacks = []
 
     @property
     def state(self):
-        return self._state
+        return self.blacks
 
     @state.setter
-    def state(self, state):
-        print(f"Originator: Setting state to `{state}`")
-        self._state = state
+    def state(self, blacks):
+        print(f"Originator: Setting state to `{blacks}`")
+        self.blacks = blacks
 
     @property
     def memento(self):
         "A `getter` for the objects state but packaged as a Memento"
         print("Originator: Providing Memento of state to caretaker.")
-        return Memento(self._state)
+        return Memento(self.blacks)
 
     @memento.setter
     def memento(self, memento):
-        self._state = memento.state
+        self.blacks = memento.blacks
         print(
             f"Originator: State after restoring from Memento: "
-            f"`{self._state}`")
+            f"`{self.blacks}`")
 
 
 class CareTaker:
@@ -55,7 +55,7 @@ class CareTaker:
         "Store a new Memento of the Originators current state"
         print("CareTaker: Getting a copy of Originators current state")
         memento = self._originator.memento
-        print(memento.board)
+        #print(memento.board)
         self._mementos.append(memento)
 
     def restore(self, index):
@@ -65,5 +65,5 @@ class CareTaker:
         """
         print("CareTaker: Restoring Originators state from Memento")
         memento = self._mementos[index]
-        print(memento.board)
+        #print(memento.board)
         self._originator.memento = memento

@@ -9,9 +9,15 @@ class ReStepButton(Button):
     def on_touch_down(self, touch):
         if self.collide_point(touch.x, touch.y):
             print('down')
-            print(self.chessboard.gameEng.board)
-            self.chessboard.careTaker.restore(0)
-            print(self.chessboard.gameEng.board)
+
+            print(f"GOMB MEGNYOMÁS ELŐTT: {self.chessboard.gameEng.board}")
+            if len(self.chessboard.gameEng.pieceStepsList) != 0:
+                self.chessboard.gameEng.unmake_move()
+                self.chessboard.gameEng.unmake_move()
+                self.chessboard.draw_pieces()
+                self.chessboard.set_all_piece_center()
+                #self.chessboard.gameEng.unmake_move()
+            print(f"GOMB MEGNYOMÁS UTÁN: {self.chessboard.gameEng.board}")
 
         return super(ReStepButton, self).on_touch_down(touch)
 

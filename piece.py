@@ -1,10 +1,4 @@
-import itertools
-from kivy.properties import StringProperty
-from kivy.uix.behaviors import DragBehavior
-from kivy.uix.image import Image
-from kivy.uix.popup import Popup
-
-from Memento import CareTaker
+from memento import CareTaker, Memento
 
 tile_size = 80
 
@@ -43,13 +37,13 @@ class Piece:
         :return: With a random move of a random enemy piece
         """
         #print(self.board)
-        self.engine.minimax(self.enemy, 1, False, -9999, 9999)
+        self.engine.minimax(self.enemy, 2, False, -9999, 9999)
         #print(self.board)
 
         compPiece = self.engine.bestPieceWithMove[0]
         compMove = self.engine.bestPieceWithMove[1]
 
-        print(compPiece.availableMoves)
+        #print(compPiece.availableMoves)
         compPiece.engine.make_move(compMove, compPiece)
 
         removingPiece = compPiece.engine.removingPiece
@@ -81,6 +75,21 @@ class Piece:
 
     def is_already_moved(self, moved):
         self.alreadyMoved = moved
+
+    @property
+    def memento(self):
+        "A `getter` for the characters attributes as a Memento"
+        return Memento(
+            self,
+            self.coordinates,
+            self.engine.board
+        )
+
+    @memento.setter
+    def memento(self, memento):
+        self = memento.piece,
+        self.coordinates = memento.move
+        self.engine.board = memento.board
 
 
 

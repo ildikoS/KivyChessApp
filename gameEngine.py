@@ -1,6 +1,7 @@
+import copy
 import itertools
 import pieces
-from Memento import CareTaker, Memento
+from memento import CareTaker, Memento
 
 
 class Player:
@@ -31,11 +32,20 @@ def positions_from_FEN(fenStr):
     return board
 
 
+class PieceStep:
+    def __init__(self, board, piece, targetMove):
+        self.board = [x[:] for x in board]
+        self.piece = piece
+        self.coordinates = piece.coordinates
+        self.move = targetMove
+        self.targetTile = self.board[targetMove[0]][targetMove[1]]
+
+
 class GameEngine:
     inf = 999999
 
     def __init__(self, inputFEN):
-        self.careTaker = None
+        self.pieceStepsList = []
         self.prevBoard = None
         self.board = positions_from_FEN(inputFEN)
         self.blacks = []
@@ -53,8 +63,22 @@ class GameEngine:
         self.isGameOver = False
         # self.layout = FloatLayout()
 
+    #@property
+    #def memento(self):
+    #    "A `getter` for the characters attributes as a Memento"
+    #    return Memento(
+    #        self.blacks,
+    #        #self.coordinates,
+    #        #self.engine.board
+    #    )
+#
+    #@memento.setter
+    #def memento(self, memento):
+    #    #self = memento.piece,
+    #    #self.coordinates = memento.move
+    #    self.blacks = memento.blacks
+
     def createBoard(self):
-        print(self.board)
         for i, j in itertools.product(range(8), range(8)):
             currPiece = self.board[i][j]
             if currPiece != '-':
@@ -71,21 +95,8 @@ class GameEngine:
 
         return self.board
 
-    #def memento(self, state):
-        #self.careTaker = CareTaker(self)
-
-    @property
-    def memento(self):
-        "A `getter` for the characters attributes as a Memento"
-        return Memento(
-            self.board,
-            self.originalPieceCoords
-        )
-
-    @memento.setter
-    def memento(self, memento):
-        self.board = memento.board
-        self.originalPieceCoords = memento.originalPieceCoords
+    # def memento(self, state):
+    # self.careTaker = CareTaker(self)
 
     def checkCollision(self, enemy, playerPiece):
         """
@@ -132,12 +143,9 @@ class GameEngine:
 
     def is_pawn_changed(self, piece):
         if type(piece) == pieces.Pawn:
-            print(piece)
-            if self.whiteTurn and piece.coordinates[0] == 7:
-                print("WHITE")
+            if piece.get_piece_color() == 'w' and piece.coordinates[0] == 7:
                 return self.change_pawn(piece, 'w')
-            elif self.whiteTurn and piece.coordinates[0] == 0:
-                print("BLACK")
+            elif piece.get_piece_color() == 'b' and piece.coordinates[0] == 0:
                 return self.change_pawn(piece, 'b')
         return None
 
@@ -151,7 +159,6 @@ class GameEngine:
         piece.set_coords(coordinates[0], coordinates[1])
         self.board[coordinates[0]][coordinates[1]] = piece
         piece.player.pieces.append(piece)
-        print(piece)
         return prevPiece, piece
 
     def can_castling(self, playerPiece):
@@ -202,16 +209,20 @@ class GameEngine:
         :param move: Tuple with number x, y coordinates
         :param argPiece: Piece which wanted to be moved to the square
         """
+        #print(self.board)
+        #copyBoard = [x[:] for x in self.board]
+        self.pieceStepsList.append(PieceStep(self.board, argPiece, move))
+        #print(self.pieceStepsList[0].board)
         self.removingPiece = None
-        self.originalPiece = argPiece
-        self.originalPieceCoords = self.originalPiece.coordinates
+        #self.originalPiece = argPiece
+        #self.originalPieceCoords = self.originalPiece.coordinates
         x, y = argPiece.coordinates
         self.board[x][y] = "-"
 
-        x, y = move
-        self.targetTile = self.board[x][y]
-        self.targetTileCoords = move
-        self.board[x][y] = argPiece
+        x, y = self.pieceStepsList[-1].move
+        self.targetTile = self.pieceStepsList[-1].targetTile
+        #self.targetTileCoords = move
+        self.board[x][y] = self.pieceStepsList[-1].piece
         argPiece.set_coords(x, y)
         if self.targetTile != "-":
             self.removingPiece = self.targetTile
@@ -221,26 +232,33 @@ class GameEngine:
 
         if argPiece.coordinates == self.kingSquare and y in [1, 5]:
             self.do_castling()
-        #self.pawn_changing(argPiece)
+        # self.pawn_changing(argPiece)
 
         self.set_king_square(argPiece.get_piece_color())
 
     def unmake_move(self):
-        originalX, originalY = self.originalPieceCoords
-        self.board[originalX][originalY] = self.originalPiece
-        self.originalPiece.set_coords(originalX, originalY)
+        lastStep = self.pieceStepsList[-1]
+
+        for i, j in itertools.product(range(8), range(8)):
+            self.board[i][j] = lastStep.board[i][j]
+            if self.board[i][j] != "-":
+                lastStep.board[i][j].set_coords(i, j)
+        #print(self.board)
+        #originalX, originalY = lastStep.coordinates #self.originalPieceCoords
+        #self.board[originalX][originalY] = lastStep.piece
+        #lastStep.piece.set_coords(originalX, originalY)
         # print(f"{originalX} and {originalY}")
+#
+        targetX, targetY = lastStep.move #self.targetTileCoords
+        #self.board[targetX][targetY] = lastStep.targetTile
+        if lastStep.targetTile != "-":
+            lastStep.targetTile.set_coords(targetX, targetY)
+            lastStep.targetTile.player.pieces.append(lastStep.targetTile)
 
-        targetX, targetY = self.targetTileCoords
-        self.board[targetX][targetY] = self.targetTile
-        if self.targetTile != "-":
-            self.targetTile.set_coords(targetX, targetY)
-            self.targetTile.player.pieces.append(self.targetTile)
-
-    #def reset_step(self):
-    #    self.board = self.prevBoard
-    #    print(self.prevBoard)
-    #    print(self.board)
+        #print(self.pieceStepsList[0].board)
+        #print(self.pieceStepsList[0].coordinates)
+        self.pieceStepsList.pop(-1)
+        #print(self.board)
 
     def set_king_square(self, pieceColor):
         for i in range(8):
@@ -269,7 +287,7 @@ class GameEngine:
                 self.legal_moves(currPiece, currPiece.enemy)
                 for move in currPiece.availableMoves:
                     self.make_move(move, currPiece)
-                    #print(f"{currPiece.get_piece_color()} lepett")
+                    # print(f"{currPiece.get_piece_color()} lepett")
                     currEvaluation = self.minimax(currPiece.enemy, depth - 1, False, alpha, beta)
                     if currEvaluation > maxEvaluation:
                         maxEvaluation = max(currEvaluation, maxEvaluation)
@@ -285,7 +303,7 @@ class GameEngine:
                 self.legal_moves(currPiece, currPiece.enemy)
                 for move in currPiece.availableMoves:
                     self.make_move(move, currPiece)
-                    #print(f"{currPiece.get_piece_color()} lepett")
+                    # print(f"{currPiece.get_piece_color()} lepett")
                     currEvaluation = self.minimax(currPiece.enemy, depth - 1, True, alpha, beta)
                     if currEvaluation < minEvaluation:
                         minEvaluation = min(currEvaluation, minEvaluation)
@@ -296,7 +314,7 @@ class GameEngine:
                         break
             return minEvaluation
 
-    #def move_ordering(self):
+    # def move_ordering(self):
     #
 
     def evaluate(self):

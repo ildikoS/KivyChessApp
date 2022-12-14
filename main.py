@@ -10,8 +10,8 @@ from chessboardui import ChessBoardUI
 from gamebuttons import NewGameButton, ReStepButton
 
 Config.set('graphics', 'width', '720')
-Config.set('graphics', 'height', '1020')
-Config.set('graphics', 'resizable', '0')
+Config.set('graphics', 'height', '1000')
+#Config.set('graphics', 'resizable', '0')
 
 
 class MainScreen(Screen):
@@ -26,8 +26,7 @@ class PracticeScreen(Screen):
     pass
 
 
-def setLayout(layout, board):
-    #layout.add_widget(BackButton())
+def set_layout(layout, board):
     layout.add_widget(NewGameButton(board))
     layout.add_widget(ReStepButton(board))
     layout.add_widget(board.layout)
@@ -40,15 +39,15 @@ class ChessApp(App):
         practiceLayout = FloatLayout()
 
         chessBoard = ChessBoardUI(attributesconf.mainFEN)
-        practiceBoard = ChessBoardUI(attributesconf.get_random_FEN())
+        #practiceBoard = ChessBoardUI(attributesconf.get_random_FEN())
 
-        setLayout(mainLayout, chessBoard)
-        setLayout(practiceLayout, practiceBoard)
+        set_layout(mainLayout, chessBoard)
+        #set_layout(practiceLayout, practiceBoard)
 
         gameScreen = GameScreen()
         practiceScreen = PracticeScreen()
         gameScreen.add_widget(mainLayout)
-        practiceScreen.add_widget(practiceLayout)
+        #practiceScreen.add_widget(practiceLayout)
 
         screenManager.add_widget(MainScreen())
         screenManager.add_widget(gameScreen)
