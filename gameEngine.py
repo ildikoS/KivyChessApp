@@ -36,9 +36,11 @@ class PieceStep:
     def __init__(self, board, piece, targetMove):
         self.board = [x[:] for x in board]
         self.piece = piece
+        self.alreadyMoved = self.piece.alreadyMoved
         self.coordinates = piece.coordinates
         self.move = targetMove
         self.targetTile = self.board[targetMove[0]][targetMove[1]]
+        self.piecesList = self.piece.player.pieces
 
 
 class GameEngine:
@@ -46,7 +48,6 @@ class GameEngine:
 
     def __init__(self, inputFEN):
         self.pieceStepsList = []
-        self.prevBoard = None
         self.board = positions_from_FEN(inputFEN)
         self.blacks = []
         self.whites = []
@@ -90,8 +91,6 @@ class GameEngine:
                     if self.board[i][j].get_piece_color() == 'b' else self.whites.append(self.board[i][j])
         self.player1 = Player(self.blacks)
         self.player2 = Player(self.whites)
-
-        self.prevBoard = self.board
 
         return self.board
 
@@ -154,7 +153,8 @@ class GameEngine:
         coordinates = pawn.coordinates
         layout = pawn.pieceLayout
         piece = pieces.Queen()
-        piece.source = f'128px/{color}_queen_png_shadow_128px.png'
+        piece.source = f'imgs/pieces/{color}_queen_png_shadow_128px.png'
+        piece.set_piece_color(color)
         piece.set_engine(self, layout)
         piece.set_coords(coordinates[0], coordinates[1])
         self.board[coordinates[0]][coordinates[1]] = piece
@@ -238,11 +238,21 @@ class GameEngine:
 
     def unmake_move(self):
         lastStep = self.pieceStepsList[-1]
+        lastStep.piece.alreadyMoved = lastStep.alreadyMoved
 
         for i, j in itertools.product(range(8), range(8)):
             self.board[i][j] = lastStep.board[i][j]
             if self.board[i][j] != "-":
                 lastStep.board[i][j].set_coords(i, j)
+
+        #for i, j in itertools.product(range(8), range(8)):
+        #    self.blacks.clear()
+        #    self.whites.clear()
+        #    if self.board[i][j] != "-":
+        #        self.blacks.append(self.board[i][j]) \
+        #            if self.board[i][j].get_piece_color() == 'b' else self.whites.append(self.board[i][j])
+
+        #print("VISSZALÉPÉS")
         #print(self.board)
         #originalX, originalY = lastStep.coordinates #self.originalPieceCoords
         #self.board[originalX][originalY] = lastStep.piece
@@ -252,13 +262,28 @@ class GameEngine:
         targetX, targetY = lastStep.move #self.targetTileCoords
         #self.board[targetX][targetY] = lastStep.targetTile
         if lastStep.targetTile != "-":
-            lastStep.targetTile.set_coords(targetX, targetY)
+        #    #lastStep.targetTile.set_coords(targetX, targetY)
             lastStep.targetTile.player.pieces.append(lastStep.targetTile)
+
+
+        #for piece in self.chessboard.gameEng.player1.pieces:
+        #    for i in range(8):
+        #        if any(piece not in sublist for sublist in self.chessboard.gameEng.board):
+        #            print(piece)
+        #            self.chessboard.gameEng.player1.pieces.remove(piece)
 
         #print(self.pieceStepsList[0].board)
         #print(self.pieceStepsList[0].coordinates)
         self.pieceStepsList.pop(-1)
         #print(self.board)
+
+    def fill_piece_list(self):
+        self.blacks.clear()
+        self.whites.clear()
+        for i, j in itertools.product(range(8), range(8)):
+            if self.board[i][j] != "-":
+                self.blacks.append(self.board[i][j]) \
+                    if self.board[i][j].get_piece_color() == 'b' else self.whites.append(self.board[i][j])
 
     def set_king_square(self, pieceColor):
         for i in range(8):

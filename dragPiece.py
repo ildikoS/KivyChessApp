@@ -55,14 +55,7 @@ class DragPiece(DragBehavior, Image, Piece):
 
                 self.is_already_moved(True)
 
-                if self.engine.is_checkmate(self.enemy):
-                    self.engine.isGameOver = True
-                    print(f"CHECK MATE, winner is: {self.get_piece_color()}")
-                    popup = GameEndPopup()
-                    winner = "Fehér Játékos (Te)" if self.get_piece_color() == "w" else "Fekete Játékos (Gép)"
-                    popup.text = f"Nyertes: {winner}"
-                    popup.open()
-
+                self.check_checkmate()
 
                 # print(len(self.enemy.pieces))
                 # self.engine.unmake_move()
@@ -71,7 +64,9 @@ class DragPiece(DragBehavior, Image, Piece):
                     computerMove = self.computer_move()
                     computerMove[0].is_already_moved(True)
                     computerMove[0].change_pawn_to_queen(computerMove[1][0], computerMove[1][1])
+                    print(self.board)
                     self.set_center(computerMove[0], computerMove[1][0], computerMove[1][1])
+                    computerMove[0].check_checkmate()
 
                 # if self.get_piece_color() == "b" else False
                 #print(randMove[0].engine.evaluate())
@@ -98,7 +93,7 @@ class DragPiece(DragBehavior, Image, Piece):
 
     def drawAvailablePositions(self):
         for move in self.availableMoves:
-            uiOutline = Image(source='128h/outline_circ.png',
+            uiOutline = Image(source='imgs/outline_circ.png',
                               pos=(move[0] * tile_size+self.offset, move[1] * tile_size+self.offset),
                               size_hint=(None, None),
                               size=(tile_size, tile_size))
@@ -116,6 +111,15 @@ class DragPiece(DragBehavior, Image, Piece):
             self.pieceLayout.add_widget(pawn_to_queen[1])
             self.pieceLayout.remove_widget(pawn_to_queen[0])
             self.set_center(pawn_to_queen[1], centerX, centerY)
+
+    def check_checkmate(self):
+        if self.engine.is_checkmate(self.enemy):
+            self.engine.isGameOver = True
+            print(f"CHECK MATE, winner is: {self.get_piece_color()}")
+            popup = GameEndPopup()
+            winner = "Fehér Játékos (Ön)" if self.get_piece_color() == "w" else "Fekete Játékos (Gép)"
+            popup.text = f"Nyertes: {winner}"
+            popup.open()
 
 
 class GameEndPopup(Popup):

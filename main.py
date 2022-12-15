@@ -9,7 +9,7 @@ import attributesconf
 from chessboardui import ChessBoardUI
 from gamebuttons import NewGameButton, ReStepButton
 
-Config.set('graphics', 'width', '720')
+Config.set('graphics', 'width', '640')
 Config.set('graphics', 'height', '950')
 #Config.set('graphics', 'resizable', '0')
 

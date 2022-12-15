@@ -1,3 +1,5 @@
+import itertools
+
 from kivy.uix.button import Button
 
 
@@ -14,8 +16,14 @@ class ReStepButton(Button):
             if len(self.chessboard.gameEng.pieceStepsList) != 0:
                 self.chessboard.gameEng.unmake_move()
                 self.chessboard.gameEng.unmake_move()
-                self.chessboard.draw_pieces()
+
+                self.chessboard.gameEng.fill_piece_list()
+
+                self.chessboard.redraw_pieces()
                 self.chessboard.set_all_piece_center()
+                print("JATEKOS BABUI")
+                print(self.chessboard.gameEng.player1.pieces)
+                print(self.chessboard.gameEng.player2.pieces)
                 #self.chessboard.gameEng.unmake_move()
             print(f"GOMB MEGNYOMÁS UTÁN: {self.chessboard.gameEng.board}")
 
