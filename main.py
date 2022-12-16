@@ -39,15 +39,15 @@ class ChessApp(App):
         practiceLayout = FloatLayout()
 
         chessBoard = ChessBoardUI(attributesconf.mainFEN)
-        #practiceBoard = ChessBoardUI(attributesconf.get_random_FEN())
+        practiceBoard = ChessBoardUI(attributesconf.get_random_FEN())
 
         set_layout(mainLayout, chessBoard)
-        #set_layout(practiceLayout, practiceBoard)
+        set_layout(practiceLayout, practiceBoard)
 
         gameScreen = GameScreen()
         practiceScreen = PracticeScreen()
         gameScreen.add_widget(mainLayout)
-        #practiceScreen.add_widget(practiceLayout)
+        practiceScreen.add_widget(practiceLayout)
 
         screenManager.add_widget(MainScreen())
         screenManager.add_widget(gameScreen)

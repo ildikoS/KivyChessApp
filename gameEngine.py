@@ -1,7 +1,5 @@
-import copy
 import itertools
 import pieces
-from memento import CareTaker, Memento
 
 
 class Player:
@@ -62,22 +60,6 @@ class GameEngine:
         self.player1 = None
         self.player2 = None
         self.isGameOver = False
-        # self.layout = FloatLayout()
-
-    #@property
-    #def memento(self):
-    #    "A `getter` for the characters attributes as a Memento"
-    #    return Memento(
-    #        self.blacks,
-    #        #self.coordinates,
-    #        #self.engine.board
-    #    )
-#
-    #@memento.setter
-    #def memento(self, memento):
-    #    #self = memento.piece,
-    #    #self.coordinates = memento.move
-    #    self.blacks = memento.blacks
 
     def createBoard(self):
         for i, j in itertools.product(range(8), range(8)):
@@ -93,9 +75,6 @@ class GameEngine:
         self.player2 = Player(self.whites)
 
         return self.board
-
-    # def memento(self, state):
-    # self.careTaker = CareTaker(self)
 
     def checkCollision(self, enemy, playerPiece):
         """
@@ -119,19 +98,14 @@ class GameEngine:
         self.can_castling(playerPiece)
         for move in playerPiece.availableMoves:
             self.make_move(move, playerPiece)
-            # print(f"MOVED: {move}")
             for enemyPiece in enemy.pieces:
                 enemyPiece.generate_moves()
                 if self.kingSquare in enemyPiece.availableMoves:
                     invalid_moves.add(move)
-                    # print(f"{self.kingSquare} - {enemyPiece} - {enemyPiece.availableMoves}")
             self.unmake_move()
 
-        # print(invalid_moves) #[0,2 és 0,2]
         for inv_move in invalid_moves:
-            # print(inv_move)
             playerPiece.availableMoves.remove(inv_move)
-        # return valid_moves
 
     def is_checkmate(self, player):
         for myPiece in player.pieces:
@@ -209,30 +183,21 @@ class GameEngine:
         :param move: Tuple with number x, y coordinates
         :param argPiece: Piece which wanted to be moved to the square
         """
-        #print(self.board)
-        #copyBoard = [x[:] for x in self.board]
         self.pieceStepsList.append(PieceStep(self.board, argPiece, move))
-        #print(self.pieceStepsList[0].board)
         self.removingPiece = None
-        #self.originalPiece = argPiece
-        #self.originalPieceCoords = self.originalPiece.coordinates
         x, y = argPiece.coordinates
         self.board[x][y] = "-"
 
         x, y = self.pieceStepsList[-1].move
         self.targetTile = self.pieceStepsList[-1].targetTile
-        #self.targetTileCoords = move
         self.board[x][y] = self.pieceStepsList[-1].piece
         argPiece.set_coords(x, y)
         if self.targetTile != "-":
             self.removingPiece = self.targetTile
             argPiece.enemy.pieces.remove(self.targetTile)
 
-        # print(f"{self} made move: {self.prevBoard}")
-
         if argPiece.coordinates == self.kingSquare and y in [1, 5]:
             self.do_castling()
-        # self.pawn_changing(argPiece)
 
         self.set_king_square(argPiece.get_piece_color())
 
@@ -245,37 +210,10 @@ class GameEngine:
             if self.board[i][j] != "-":
                 lastStep.board[i][j].set_coords(i, j)
 
-        #for i, j in itertools.product(range(8), range(8)):
-        #    self.blacks.clear()
-        #    self.whites.clear()
-        #    if self.board[i][j] != "-":
-        #        self.blacks.append(self.board[i][j]) \
-        #            if self.board[i][j].get_piece_color() == 'b' else self.whites.append(self.board[i][j])
-
-        #print("VISSZALÉPÉS")
-        #print(self.board)
-        #originalX, originalY = lastStep.coordinates #self.originalPieceCoords
-        #self.board[originalX][originalY] = lastStep.piece
-        #lastStep.piece.set_coords(originalX, originalY)
-        # print(f"{originalX} and {originalY}")
-#
-        targetX, targetY = lastStep.move #self.targetTileCoords
-        #self.board[targetX][targetY] = lastStep.targetTile
         if lastStep.targetTile != "-":
-        #    #lastStep.targetTile.set_coords(targetX, targetY)
             lastStep.targetTile.player.pieces.append(lastStep.targetTile)
 
-
-        #for piece in self.chessboard.gameEng.player1.pieces:
-        #    for i in range(8):
-        #        if any(piece not in sublist for sublist in self.chessboard.gameEng.board):
-        #            print(piece)
-        #            self.chessboard.gameEng.player1.pieces.remove(piece)
-
-        #print(self.pieceStepsList[0].board)
-        #print(self.pieceStepsList[0].coordinates)
         self.pieceStepsList.pop(-1)
-        #print(self.board)
 
     def fill_piece_list(self):
         self.blacks.clear()
@@ -303,53 +241,67 @@ class GameEngine:
         :param maxPlayer:
         :return:
         """
-        if depth == 0 or self.is_checkmate(player):
-            return self.evaluate()
+        #TODO: refactor cause of nontype
+        bestPieceWithMove = None, None
 
-        maxEvaluation = -self.inf
+        if depth == 0:
+            return self.evaluate(not maxPlayer), bestPieceWithMove
+
+        #self.whiteTurn = not self.whiteTurn
+
         if maxPlayer:
+            maxEvaluation = -self.inf
             for currPiece in player.pieces:
                 self.legal_moves(currPiece, currPiece.enemy)
                 for move in currPiece.availableMoves:
                     self.make_move(move, currPiece)
-                    # print(f"{currPiece.get_piece_color()} lepett")
+                   # print(f"{currPiece.get_piece_color()} lepett")
                     currEvaluation = self.minimax(currPiece.enemy, depth - 1, False, alpha, beta)
-                    if currEvaluation > maxEvaluation:
-                        maxEvaluation = max(currEvaluation, maxEvaluation)
-                        self.bestPieceWithMove = currPiece, move
+                    currValue = currEvaluation[0]
+                    if currValue > maxEvaluation:
+                        maxEvaluation = max(currValue, maxEvaluation)
+                        bestPieceWithMove = currPiece, move
                     self.unmake_move()
-                    alpha = max(alpha, currEvaluation)
-                    if beta <= alpha:
-                        break
-            return maxEvaluation
+                    alpha = max(alpha, currValue)
+                    #if beta <= alpha:
+                    #    break
+            #print("MAXIMUM")
+            #print(bestPieceWithMove, maxEvaluation)
+            return maxEvaluation, bestPieceWithMove
         else:
             minEvaluation = self.inf
             for currPiece in player.pieces:
                 self.legal_moves(currPiece, currPiece.enemy)
                 for move in currPiece.availableMoves:
                     self.make_move(move, currPiece)
-                    # print(f"{currPiece.get_piece_color()} lepett")
+                   # print(f"{currPiece.get_piece_color()} lepett")
                     currEvaluation = self.minimax(currPiece.enemy, depth - 1, True, alpha, beta)
-                    if currEvaluation < minEvaluation:
-                        minEvaluation = min(currEvaluation, minEvaluation)
-                        self.bestPieceWithMove = currPiece, move
+                    currValue = currEvaluation[0]
+                    print(move, currPiece, currValue)
+                    if currValue < minEvaluation:
+                        minEvaluation = min(currValue, minEvaluation)
+                        bestPieceWithMove = currPiece, move
                     self.unmake_move()
-                    beta = min(beta, currEvaluation)
-                    if beta <= alpha:
-                        break
-            return minEvaluation
+                    beta = min(beta, currValue)
+                    #if beta <= alpha:
+                    #    break
+            #print("MINIMUM")
+            #print(bestPieceWithMove, minEvaluation)
+            return minEvaluation, bestPieceWithMove
 
-    # def move_ordering(self):
-    #
+    def move_ordering(self):
+        pass
 
-    def evaluate(self):
+    def evaluate(self, maxPlayer):
+        #TODO: refactoring, testing
         whiteScore = self.count_pieces("w")
         blackScore = self.count_pieces("b")
 
-        evaluation = whiteScore - blackScore
+        #evaluation = whiteScore - blackScore
+        #whoToMove = 1 if maxPlayer else -1
+        #print(maxPlayer)
 
-        whoToMove = 1 if self.whiteTurn else -1
-        return evaluation * whoToMove
+        return whiteScore - blackScore #* whoToMove
 
     def count_pieces(self, color):
         pawnValue = 10

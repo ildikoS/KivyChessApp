@@ -35,7 +35,7 @@ class DragPiece(DragBehavior, Image, Piece):
                 self.set_center(self, centerX, centerY)
 
                 # TODO: Refactoring
-                self.engine.whiteTurn = True
+                #self.engine.whiteTurn = True
 
                 #self.engine.careTaker.save()
                 #self.careTaker.save()
@@ -70,7 +70,7 @@ class DragPiece(DragBehavior, Image, Piece):
 
                 # if self.get_piece_color() == "b" else False
                 #print(randMove[0].engine.evaluate())
-                self.engine.whiteTurn = False
+                #self.engine.whiteTurn = False
         else:
             self.set_center(self, self.coordinates[0], self.coordinates[1])
 

@@ -21,10 +21,6 @@ class ReStepButton(Button):
 
                 self.chessboard.redraw_pieces()
                 self.chessboard.set_all_piece_center()
-                print("JATEKOS BABUI")
-                print(self.chessboard.gameEng.player1.pieces)
-                print(self.chessboard.gameEng.player2.pieces)
-                #self.chessboard.gameEng.unmake_move()
             print(f"GOMB MEGNYOMÁS UTÁN: {self.chessboard.gameEng.board}")
 
         return super(ReStepButton, self).on_touch_down(touch)
