@@ -110,7 +110,8 @@ class AI:
             moveScores.append(score)
         #
         # Sorting
-        piecesWithMoves, moveScores = zip(*sorted(zip(piecesWithMoves, moveScores), key=lambda x: x[1], reverse=True))
+        if piecesWithMoves:
+            piecesWithMoves, moveScores = zip(*sorted(zip(piecesWithMoves, moveScores), key=lambda x: x[1], reverse=True))
         #
         return piecesWithMoves
 
