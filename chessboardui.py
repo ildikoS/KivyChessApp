@@ -3,7 +3,6 @@ import itertools
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
 
-from memento import CareTaker
 from gameEngine import GameEngine
 
 

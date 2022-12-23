@@ -1,4 +1,4 @@
-from memento import CareTaker, Memento
+import time
 
 tile_size = 80
 
@@ -36,8 +36,9 @@ class Piece:
 
         :return: With a random move of a random enemy piece
         """
-        #print(self.board)
-        bestPieceWithMove = self.engine.minimax(self.enemy, 3, False, -9999, 9999)
+        start_time = time.time()
+        bestPieceWithMove = self.engine.minimax(self.enemy, 4, False, -9999, 9999)
+        print(f"--- {time.time() - start_time} seconds ---")
         #print(bestPieceWithMove[0])
         #print(self.board)
 
@@ -76,21 +77,6 @@ class Piece:
 
     def is_already_moved(self, moved):
         self.alreadyMoved = moved
-
-    @property
-    def memento(self):
-        "A `getter` for the characters attributes as a Memento"
-        return Memento(
-            self,
-            self.coordinates,
-            self.engine.board
-        )
-
-    @memento.setter
-    def memento(self, memento):
-        self = memento.piece,
-        self.coordinates = memento.move
-        self.engine.board = memento.board
 
 
 

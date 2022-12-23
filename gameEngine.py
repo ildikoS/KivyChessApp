@@ -1,4 +1,5 @@
 import itertools
+
 import pieces
 
 
@@ -30,7 +31,7 @@ def positions_from_FEN(fenStr):
     return board
 
 
-class PieceStep:
+class LastPieceStep:
     def __init__(self, board, piece, targetMove):
         self.board = [x[:] for x in board]
         self.piece = piece
@@ -39,6 +40,15 @@ class PieceStep:
         self.move = targetMove
         self.targetTile = self.board[targetMove[0]][targetMove[1]]
         self.piecesList = self.piece.player.pieces
+
+
+def get_piece_value(pieceType):
+    if pieceType == pieces.Pawn: return 10
+    if pieceType == pieces.Knight: return 30
+    if pieceType == pieces.Bishop: return 30
+    if pieceType == pieces.Rook: return 50
+    if pieceType == pieces.Queen: return 100
+    if pieceType == pieces.King: return 1000
 
 
 class GameEngine:
@@ -175,7 +185,7 @@ class GameEngine:
         rookX, rookY = newPos
         self.board[rookX][rookY] = rook
         self.board[rookX][rookY].set_coords(rookX, rookY)
-        self.board[rookX][rookY].set_center(self.board[rookX][rookY], rookX, rookY)
+        # self.board[rookX][rookY].set_center(self.board[rookX][rookY], rookX, rookY)
 
     def make_move(self, move, argPiece):
         """
@@ -183,7 +193,7 @@ class GameEngine:
         :param move: Tuple with number x, y coordinates
         :param argPiece: Piece which wanted to be moved to the square
         """
-        self.pieceStepsList.append(PieceStep(self.board, argPiece, move))
+        self.pieceStepsList.append(LastPieceStep(self.board, argPiece, move))
         self.removingPiece = None
         x, y = argPiece.coordinates
         self.board[x][y] = "-"
@@ -195,6 +205,8 @@ class GameEngine:
         if self.targetTile != "-":
             self.removingPiece = self.targetTile
             argPiece.enemy.pieces.remove(self.targetTile)
+
+        #print(argPiece.enemy.pieces)
 
         if argPiece.coordinates == self.kingSquare and y in [1, 5]:
             self.do_castling()
@@ -231,6 +243,16 @@ class GameEngine:
                     # print(f"FOUND KING {self.kingSquare}")
                     break
 
+    def get_pieces_with_moves_list(self, player):
+        piecesWithMoves = []
+        color = player.pieces[0].get_piece_color()
+        for i, j in itertools.product(range(8), range(8)):
+            if self.board[i][j] != "-" and self.board[i][j].get_piece_color() == color:
+                piece = self.board[i][j]
+                self.legal_moves(piece, piece.enemy)
+                piecesWithMoves.extend((piece, move) for move in piece.availableMoves)
+        return piecesWithMoves
+
     def minimax(self, player, depth, maxPlayer, alpha, beta):
         """
 
@@ -241,91 +263,110 @@ class GameEngine:
         :param maxPlayer:
         :return:
         """
-        #TODO: refactor cause of nontype
+        # TODO: refactor cause of nontype
+        #orderedList = self.move_ordering(player)
         bestPieceWithMove = None, None
 
         if depth == 0:
-            return self.evaluate(not maxPlayer), bestPieceWithMove
-
-        #self.whiteTurn = not self.whiteTurn
+            return self.evaluate(), bestPieceWithMove
 
         if maxPlayer:
             maxEvaluation = -self.inf
-            for currPiece in player.pieces:
-                self.legal_moves(currPiece, currPiece.enemy)
-                for move in currPiece.availableMoves:
+            #for currPiece in player.pieces:
+            #    self.legal_moves(currPiece, currPiece.enemy)
+            for currPiece, move in self.move_ordering(player):
+            #    for move in currPiece.availableMoves:
                     self.make_move(move, currPiece)
-                   # print(f"{currPiece.get_piece_color()} lepett")
                     currEvaluation = self.minimax(currPiece.enemy, depth - 1, False, alpha, beta)
                     currValue = currEvaluation[0]
                     if currValue > maxEvaluation:
-                        maxEvaluation = max(currValue, maxEvaluation)
+                        maxEvaluation = max(maxEvaluation, currValue)
                         bestPieceWithMove = currPiece, move
+                        #if depth == 1:
+                        #    print("DEPTH 1")
+                        #    print(currPiece, move, currValue)
+                        #    print(bestPieceWithMove)
                     self.unmake_move()
                     alpha = max(alpha, currValue)
-                    #if beta <= alpha:
-                    #    break
+                    #print(f"ALPHA: {alpha}")
+                    #print(f"BETA: {beta}")
+                    if beta <= alpha:
+                        break
+            #if beta <= alpha:
+            #    break
             #print("MAXIMUM")
             #print(bestPieceWithMove, maxEvaluation)
             return maxEvaluation, bestPieceWithMove
         else:
             minEvaluation = self.inf
-            for currPiece in player.pieces:
-                self.legal_moves(currPiece, currPiece.enemy)
-                for move in currPiece.availableMoves:
+            #for currPiece in player.pieces:
+            #    self.legal_moves(currPiece, currPiece.enemy)
+            for currPiece, move in self.move_ordering(player):
+            #    for move in currPiece.availableMoves:
                     self.make_move(move, currPiece)
-                   # print(f"{currPiece.get_piece_color()} lepett")
                     currEvaluation = self.minimax(currPiece.enemy, depth - 1, True, alpha, beta)
                     currValue = currEvaluation[0]
-                    print(move, currPiece, currValue)
+                    print("LÉPETT")
+                    print(currPiece, move, currValue)
+                    #print(self.board)
                     if currValue < minEvaluation:
-                        minEvaluation = min(currValue, minEvaluation)
+                        minEvaluation = min(minEvaluation, currValue)
                         bestPieceWithMove = currPiece, move
+                        if depth == 3:
+                            # print(self.board[4][1])
+                            print("--------------DEPTH 3---------------")
+                            print(currPiece, move, currValue)
+                            print(bestPieceWithMove)
+                        #print(bestPieceWithMove)
+
                     self.unmake_move()
+                        #print(beta)
+                        #print(alpha)
                     beta = min(beta, currValue)
-                    #if beta <= alpha:
-                    #    break
+                    if beta <= alpha:
+                        break
+            #if beta <= alpha:
+            #    break
+            #print("------")
             #print("MINIMUM")
+            #print(self.board)
             #print(bestPieceWithMove, minEvaluation)
             return minEvaluation, bestPieceWithMove
 
-    def move_ordering(self):
-        pass
+    def move_ordering(self, player):
+        moveScores = []
+        constVal = 13
+        piecesWithMoves = self.get_pieces_with_moves_list(player)
+#
+        for piece, move in piecesWithMoves:
+            score = 0
+            capturePiece = self.board[move[0]][move[1]]
+            if capturePiece != "-":
+                score = constVal * get_piece_value(type(capturePiece)) - get_piece_value(type(piece))
+            #print(piece, move, score)
+            moveScores.append(score)
+#
+        #Sorting
+        piecesWithMoves, moveScores = zip(*sorted(zip(piecesWithMoves, moveScores), key=lambda x: x[1], reverse=True))
+#
+        return piecesWithMoves
+#
+        #print(sorted(zip(piecesWithMoves, moveScores), key=lambda x: x[1], reverse=True))
 
-    def evaluate(self, maxPlayer):
-        #TODO: refactoring, testing
+    def evaluate(self):
+        # TODO: refactoring, testing
         whiteScore = self.count_pieces("w")
         blackScore = self.count_pieces("b")
 
-        #evaluation = whiteScore - blackScore
-        #whoToMove = 1 if maxPlayer else -1
-        #print(maxPlayer)
+        #print(whiteScore)
+        #print(blackScore)
+        #print(self.board)
 
-        return whiteScore - blackScore #* whoToMove
+        return whiteScore - blackScore
 
     def count_pieces(self, color):
-        pawnValue = 10
-        knightValue = 30
-        bishopValue = 30
-        rookValue = 50
-        queenValue = 90
-        kingValue = 900
-
-        piece_dict = {
-            pieces.Pawn: pawnValue,
-            pieces.Knight: knightValue,
-            pieces.Bishop: bishopValue,
-            pieces.Rook: rookValue,
-            pieces.Queen: queenValue,
-            pieces.King: kingValue
-        }
-
-        # valueCount = 0
-        # for pieceKey, pieceValue in piece_dict.items():
-        #    valueCount += self.get_count(pieceKey, color) * pieceValue
-        # return valueCount
-
-        return sum(self.get_count(pieceKey, color) * pieceValue for pieceKey, pieceValue in piece_dict.items())
+        piecesTypes = [pieces.Pawn, pieces.Knight, pieces.Bishop, pieces.Rook, pieces.Queen, pieces.King]
+        return sum(self.get_count(pieceType, color) * get_piece_value(pieceType) for pieceType in piecesTypes)
 
     def get_count(self, key, color):
         return sum(len([e for e in rows if type(e) == key and e.get_piece_color() == color]) for rows in self.board)

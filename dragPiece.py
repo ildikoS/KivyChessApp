@@ -57,14 +57,15 @@ class DragPiece(DragBehavior, Image, Piece):
 
                 self.check_checkmate()
 
+                #self.engine.move_ordering()
                 # print(len(self.enemy.pieces))
                 # self.engine.unmake_move()
                 # print(len(self.enemy.pieces))
                 if not self.engine.isGameOver:
+                    print(self.board)
                     computerMove = self.computer_move()
                     computerMove[0].is_already_moved(True)
                     computerMove[0].change_pawn_to_queen(computerMove[1][0], computerMove[1][1])
-                    print(self.board)
                     self.set_center(computerMove[0], computerMove[1][0], computerMove[1][1])
                     computerMove[0].check_checkmate()
 
