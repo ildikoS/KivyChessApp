@@ -1,6 +1,18 @@
+import itertools
 import time
 
 tile_size = 80
+
+
+class LastPieceStep:
+    def __init__(self, board, piece, targetMove):
+        self.board = [x[:] for x in board]
+        self.piece = piece
+        self.alreadyMoved = self.piece.alreadyMoved
+        self.coordinates = piece.coordinates
+        self.move = targetMove
+        self.targetTile = self.board[targetMove[0]][targetMove[1]]
+        self.piecesList = self.piece.player.pieces
 
 
 class Piece:
@@ -31,13 +43,53 @@ class Piece:
                 if self.board[X][Y] in self.enemy.pieces:
                     break
 
+    def make_move(self, move):
+        """
+        Set the (x, y) square of piece
+        :param move: Tuple with number x, y coordinates
+        :param argPiece: Piece which wanted to be moved to the square
+        """
+        self.engine.pieceStepsList.append(LastPieceStep(self.board, self, move))
+        self.engine.removingPiece = None
+        x, y = self.coordinates
+        self.board[x][y] = "-"
+
+        x, y = self.engine.pieceStepsList[-1].move
+        self.engine.targetTile = self.engine.pieceStepsList[-1].targetTile
+        self.board[x][y] = self.engine.pieceStepsList[-1].piece
+        self.set_coords(x, y)
+        if self.engine.targetTile != "-":
+            self.engine.removingPiece = self.engine.targetTile
+            self.enemy.pieces.remove(self.engine.targetTile)
+
+        #print(argPiece.enemy.pieces)
+
+        if self.coordinates == self.engine.kingSquare and y in [1, 5]:
+            self.engine.do_castling()
+
+        self.engine.set_king_square(self.get_piece_color())
+
+    #def unmake_move(self):
+    #    lastStep = self.engine.pieceStepsList[-1]
+    #    lastStep.piece.alreadyMoved = lastStep.alreadyMoved
+#
+    #    for i, j in itertools.product(range(8), range(8)):
+    #        self.board[i][j] = lastStep.board[i][j]
+    #        if self.board[i][j] != "-":
+    #            lastStep.board[i][j].set_coords(i, j)
+#
+    #    if lastStep.targetTile != "-":
+    #        lastStep.targetTile.player.pieces.append(lastStep.targetTile)
+#
+    #    self.engine.pieceStepsList.pop(-1)
+
     def computer_move(self):
         """
 
         :return: With a random move of a random enemy piece
         """
         start_time = time.time()
-        bestPieceWithMove = self.engine.minimax(self.enemy, 4, False, -9999, 9999)
+        bestPieceWithMove = self.engine.ai.minimax(self.enemy, 3, False, -9999, 9999)
         print(f"--- {time.time() - start_time} seconds ---")
         #print(bestPieceWithMove[0])
         #print(self.board)
@@ -46,7 +98,7 @@ class Piece:
         compMove = bestPieceWithMove[1][1] #self.engine.bestPieceWithMove[1]
 
         #print(compPiece.availableMoves)
-        compPiece.engine.make_move(compMove, compPiece)
+        compPiece.make_move(compMove)
 
         removingPiece = compPiece.engine.removingPiece
         if removingPiece is not None:

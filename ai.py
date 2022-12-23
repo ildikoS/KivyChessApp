@@ -1,6 +1,14 @@
 import pieces
 
 
+def get_piece_value(pieceType):
+    if pieceType == pieces.Pawn: return 10
+    if pieceType == pieces.Knight: return 30
+    if pieceType == pieces.Bishop: return 30
+    if pieceType == pieces.Rook: return 50
+    if pieceType == pieces.Queen: return 100
+    if pieceType == pieces.King: return 1000
+
 
 class AI:
     inf = 99999
@@ -31,7 +39,7 @@ class AI:
             #    self.legal_moves(currPiece, currPiece.enemy)
             for currPiece, move in self.move_ordering(player):
                 #    for move in currPiece.availableMoves:
-                self.make_move(move, currPiece)
+                currPiece.make_move(move)
                 currEvaluation = self.minimax(currPiece.enemy, depth - 1, False, alpha, beta)
                 currValue = currEvaluation[0]
                 if currValue > maxEvaluation:
@@ -41,7 +49,7 @@ class AI:
                     #    print("DEPTH 1")
                     #    print(currPiece, move, currValue)
                     #    print(bestPieceWithMove)
-                self.unmake_move()
+                currPiece.engine.unmake_move()
                 alpha = max(alpha, currValue)
                 # print(f"ALPHA: {alpha}")
                 # print(f"BETA: {beta}")
@@ -58,7 +66,7 @@ class AI:
             #    self.legal_moves(currPiece, currPiece.enemy)
             for currPiece, move in self.move_ordering(player):
                 #    for move in currPiece.availableMoves:
-                self.make_move(move, currPiece)
+                currPiece.make_move(move)
                 currEvaluation = self.minimax(currPiece.enemy, depth - 1, True, alpha, beta)
                 currValue = currEvaluation[0]
                 print("LÉPETT")
@@ -74,7 +82,7 @@ class AI:
                         print(bestPieceWithMove)
                     # print(bestPieceWithMove)
 
-                self.unmake_move()
+                currPiece.engine.unmake_move()
                 # print(beta)
                 # print(alpha)
                 beta = min(beta, currValue)
@@ -91,7 +99,7 @@ class AI:
     def move_ordering(self, player):
         moveScores = []
         constVal = 13
-        piecesWithMoves = self.get_pieces_with_moves_list(player)
+        piecesWithMoves = player.get_pieces_with_moves_list(self.board)
         #
         for piece, move in piecesWithMoves:
             score = 0
@@ -110,13 +118,8 @@ class AI:
     # print(sorted(zip(piecesWithMoves, moveScores), key=lambda x: x[1], reverse=True))
 
     def evaluate(self):
-        # TODO: refactoring, testing
         whiteScore = self.count_pieces("w")
         blackScore = self.count_pieces("b")
-
-        # print(whiteScore)
-        # print(blackScore)
-        # print(self.board)
 
         return whiteScore - blackScore
 

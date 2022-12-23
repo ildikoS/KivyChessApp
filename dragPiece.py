@@ -39,7 +39,7 @@ class DragPiece(DragBehavior, Image, Piece):
 
                 #self.engine.careTaker.save()
                 #self.careTaker.save()
-                self.engine.make_move((centerX, centerY), self)
+                self.make_move((centerX, centerY))
                 #print(f"LÉPÉST CSINÁLT GGGGGGG: {self.engine.pieceStepsList}")
                 #print(self.engine.pieceStepsList[0].board)
                 #print(self.engine.board)
