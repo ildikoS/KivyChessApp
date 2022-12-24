@@ -1,13 +1,6 @@
+import random
+
 import pieces
-
-
-def get_piece_value(pieceType):
-    if pieceType == pieces.Pawn: return 10
-    if pieceType == pieces.Knight: return 30
-    if pieceType == pieces.Bishop: return 30
-    if pieceType == pieces.Rook: return 50
-    if pieceType == pieces.Queen: return 100
-    if pieceType == pieces.King: return 1000
 
 
 class AI:
@@ -26,9 +19,12 @@ class AI:
         :param maxPlayer:
         :return:
         """
-        # TODO: refactor cause of nontype
-        # orderedList = self.move_ordering(player)
-        bestPieceWithMove = None, None
+        randomPiece = None
+        randomMove = None
+        while randomPiece is not None:
+            randomPiece = random.choice(player.pieces) if randomPiece.availableMoves else None
+            randomMove = random.choice(randomPiece.availableMoves)
+        bestPieceWithMove = randomPiece, randomMove
 
         if depth == 0:
             return self.evaluate(), bestPieceWithMove
@@ -55,8 +51,6 @@ class AI:
                 # print(f"BETA: {beta}")
                 if beta <= alpha:
                     break
-            # if beta <= alpha:
-            #    break
             # print("MAXIMUM")
             # print(bestPieceWithMove, maxEvaluation)
             return maxEvaluation, bestPieceWithMove
@@ -88,8 +82,6 @@ class AI:
                 beta = min(beta, currValue)
                 if beta <= alpha:
                     break
-            # if beta <= alpha:
-            #    break
             # print("------")
             # print("MINIMUM")
             # print(self.board)
@@ -103,10 +95,14 @@ class AI:
         #
         for piece, move in piecesWithMoves:
             score = 0
-            capturePiece = self.board[move[0]][move[1]]
+            toX, toY = move
+            capturePiece = self.board[toX][toY]
             if capturePiece != "-":
-                score = constVal * get_piece_value(type(capturePiece)) - get_piece_value(type(piece))
+                score = constVal * self.get_piece_value(type(capturePiece)) - self.get_piece_value(type(piece))
             # print(piece, move, score)
+            if piece.engine.is_checkmate(piece.enemy):
+                score += 2000
+
             moveScores.append(score)
         #
         # Sorting
@@ -126,7 +122,16 @@ class AI:
 
     def count_pieces(self, color):
         piecesTypes = [pieces.Pawn, pieces.Knight, pieces.Bishop, pieces.Rook, pieces.Queen, pieces.King]
-        return sum(self.get_count(pieceType, color) * get_piece_value(pieceType) for pieceType in piecesTypes)
+        return sum(self.get_count(pieceType, color) * self.get_piece_value(pieceType) for pieceType in piecesTypes)
 
     def get_count(self, key, color):
         return sum(len([e for e in rows if type(e) == key and e.get_piece_color() == color]) for rows in self.board)
+
+    @staticmethod
+    def get_piece_value(pieceType):
+        if pieceType == pieces.Pawn: return 10
+        if pieceType == pieces.Knight: return 30
+        if pieceType == pieces.Bishop: return 30
+        if pieceType == pieces.Rook: return 50
+        if pieceType == pieces.Queen: return 100
+        if pieceType == pieces.King: return 1000

@@ -5,9 +5,10 @@ from kivy.uix.behaviors import DragBehavior
 from kivy.uix.image import Image
 from kivy.uix.popup import Popup
 
+import attributesconf
 from piece import Piece
 
-tile_size = 80
+tile_size = attributesconf.tile_size
 
 
 class DragPiece(DragBehavior, Image, Piece):

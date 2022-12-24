@@ -2,92 +2,28 @@ import itertools
 
 import pieces
 from ai import AI
-
-
-class Player:
-    def __init__(self, playerPieces):
-        self.pieces = playerPieces
-
-    def get_pieces_with_moves_list(self, board):
-        piecesWithMoves = []
-        color = self.pieces[0].get_piece_color()
-        for i, j in itertools.product(range(8), range(8)):
-            if board[i][j] != "-" and board[i][j].get_piece_color() == color:
-                piece = board[i][j]
-                board[i][j].engine.legal_moves(piece, piece.enemy)
-                piecesWithMoves.extend((piece, move) for move in piece.availableMoves)
-        return piecesWithMoves
-
-
-def get_piece(char):
-    if char == 'k': return pieces.King()
-    if char == 'q': return pieces.Queen()
-    if char == 'b': return pieces.Bishop()
-    if char == 'n': return pieces.Knight()
-    if char == 'r': return pieces.Rook()
-    if char == 'p': return pieces.Pawn()
-
-
-def positions_from_FEN(fenStr):
-    board = []
-    innerBoard = []
-    for char in fenStr.split()[0]:
-        if char == '/':
-            board.append(innerBoard)
-            innerBoard = []
-        elif char.isdigit():
-            innerBoard.extend('-' * int(char))
-        else:
-            innerBoard.append(char)
-    return board
-
-
-#class LastPieceStep:
-#    def __init__(self, board, piece, targetMove):
-#        self.board = [x[:] for x in board]
-#        self.piece = piece
-#        self.alreadyMoved = self.piece.alreadyMoved
-#        self.coordinates = piece.coordinates
-#        self.move = targetMove
-#        self.targetTile = self.board[targetMove[0]][targetMove[1]]
-#        self.piecesList = self.piece.player.pieces
-
-
-def get_piece_value(pieceType):
-    if pieceType == pieces.Pawn: return 10
-    if pieceType == pieces.Knight: return 30
-    if pieceType == pieces.Bishop: return 30
-    if pieceType == pieces.Rook: return 50
-    if pieceType == pieces.Queen: return 100
-    if pieceType == pieces.King: return 1000
+from player import Player
 
 
 class GameEngine:
-    inf = 999999
-
     def __init__(self, inputFEN):
         self.pieceStepsList = []
-        self.board = positions_from_FEN(inputFEN)
+        self.board = self.positions_from_FEN(inputFEN)
         self.blacks = []
         self.whites = []
-        self.whiteTurn = True
-        self.bestPieceWithMove = None
         self.removingPiece = None
-        self.originalPieceCoords = None
-        self.targetTileCoords = None
         self.targetTile = None
-        self.originalPiece = None
         self.kingSquare = None
         self.player1 = None
         self.player2 = None
         self.isGameOver = False
         self.ai = AI(self.board)
 
-    def createBoard(self):
+    def create_board(self):
         for i, j in itertools.product(range(8), range(8)):
             currPiece = self.board[i][j]
             if currPiece != '-':
-                self.board[i][j] = get_piece(currPiece.lower())
+                self.board[i][j] = self.get_piece(currPiece.lower())
                 self.board[i][j].set_piece_color('w' if currPiece.islower() else 'b')
                 self.board[i][j].set_coords(i, j)
 
@@ -98,24 +34,24 @@ class GameEngine:
 
         return self.board
 
-    def checkCollision(self, enemy, playerPiece):
-        """
-        Check if 2 pieces are collided or not
-        :param enemy: The other player
-        :param playerPiece: Current player's piece
-        :return: with enemyPiece if found collided piece, otherwise False
-        """
-        for enemyPiece in enemy.pieces:
-            if enemyPiece.coordinates == playerPiece.coordinates:
-                print("---------")
-                print(f"{enemyPiece} was removed")
-                print("---------")
-                return enemyPiece
-        return False
+    #def checkCollision(self, enemy, playerPiece):
+    #    """
+    #    Check if 2 pieces are collided or not
+    #    :param enemy: The other player
+    #    :param playerPiece: Current player's piece
+    #    :return: with enemyPiece if found collided piece, otherwise False
+    #    """
+    #    for enemyPiece in enemy.pieces:
+    #        if enemyPiece.coordinates == playerPiece.coordinates:
+    #            print("---------")
+    #            print(f"{enemyPiece} was removed")
+    #            print("---------")
+    #            return enemyPiece
+    #    return False
 
     def legal_moves(self, playerPiece, enemy):
         playerPiece.generate_moves()
-        invalid_moves = set()
+        invalidMoves = set()
 
         self.can_castling(playerPiece)
         for move in playerPiece.availableMoves:
@@ -123,11 +59,11 @@ class GameEngine:
             for enemyPiece in enemy.pieces:
                 enemyPiece.generate_moves()
                 if self.kingSquare in enemyPiece.availableMoves:
-                    invalid_moves.add(move)
+                    invalidMoves.add(move)
             self.unmake_move()
 
-        for inv_move in invalid_moves:
-            playerPiece.availableMoves.remove(inv_move)
+        for invMove in invalidMoves:
+            playerPiece.availableMoves.remove(invMove)
 
     def is_checkmate(self, player):
         for myPiece in player.pieces:
@@ -139,21 +75,21 @@ class GameEngine:
     def is_pawn_changed(self, piece):
         if type(piece) == pieces.Pawn:
             if piece.get_piece_color() == 'w' and piece.coordinates[0] == 7:
-                return self.change_pawn(piece, 'w')
+                return self.change_pawn(piece)
             elif piece.get_piece_color() == 'b' and piece.coordinates[0] == 0:
-                return self.change_pawn(piece, 'b')
+                return self.change_pawn(piece)
         return None
 
-    def change_pawn(self, pawn, color):
+    def change_pawn(self, pawn):
         prevPiece = pawn
-        coordinates = pawn.coordinates
+        pawnX, pawnY = pawn.coordinates
         layout = pawn.pieceLayout
         piece = pieces.Queen()
-        piece.source = f'imgs/pieces/{color}_queen_png_shadow_128px.png'
-        piece.set_piece_color(color)
+        piece.set_piece_color(pawn.get_piece_color())
+        piece.source = f'imgs/pieces/{piece.get_piece_color()}_queen_png_shadow_128px.png'
         piece.set_engine(self, layout)
-        piece.set_coords(coordinates[0], coordinates[1])
-        self.board[coordinates[0]][coordinates[1]] = piece
+        piece.set_coords(pawnX, pawnY)
+        self.board[pawnX][pawnY] = piece
         piece.player.pieces.append(piece)
         return prevPiece, piece
 
@@ -163,33 +99,24 @@ class GameEngine:
         king = self.board[kingX][kingY]
         if not king.alreadyMoved:
             bottomRook = self.board[kingX][0]
+            overRook = self.board[kingX][7]
 
             if type(bottomRook) == pieces.Rook and not bottomRook.alreadyMoved and self.board[kingX][kingY - 1] == "-" \
                     and self.board[kingX][kingY - 2] == "-":
                 king.availableMoves.append((kingX, kingY - 2))
-            overRook = self.board[kingX][7]
+
             if type(overRook) == pieces.Rook and not overRook.alreadyMoved and self.board[kingX][kingY + 1] == "-" \
                     and self.board[kingX][kingY + 2] == "-" and self.board[kingX][kingY + 3] == "-":
                 king.availableMoves.append((kingX, kingY + 2))
 
     def do_castling(self):
-        print("castling")
         kingX, kingY = self.kingSquare
-        rook = None
 
         if type(self.board[kingX][0]) == pieces.Rook:
             if kingY == 1:
-                print(self.board[kingX][0])
                 self.set_rook_pos(kingX, 0, (kingX, kingY + 1))
             elif kingY == 5:
-                print(self.board[kingX][0])
                 self.set_rook_pos(kingX, 7, (kingX, kingY - 1))
-
-        print(f"BOTTOMROOK: {rook}")
-
-        # self.board[kingX][kingY+1] = bottomRook
-        # print(f"king feletti hely: {self.board[kingX][kingY + 1]}")
-        # self.board[kingX][kingY+1].set_coords(kingX, kingY + 1)
 
     def set_rook_pos(self, kingX, rookY, newPos):
         rook = self.board[kingX][rookY]
@@ -197,7 +124,6 @@ class GameEngine:
         rookX, rookY = newPos
         self.board[rookX][rookY] = rook
         self.board[rookX][rookY].set_coords(rookX, rookY)
-        # self.board[rookX][rookY].set_center(self.board[rookX][rookY], rookX, rookY)
 
     #def make_move(self, move, argPiece):
     #    """
@@ -252,8 +178,30 @@ class GameEngine:
             for j in range(8):
                 if type(self.board[i][j]) == pieces.King and self.board[i][j].get_piece_color() == pieceColor:
                     self.kingSquare = (i, j)
-                    # print(f"FOUND KING {self.kingSquare}")
                     break
+
+    @staticmethod
+    def get_piece(char):
+        if char == 'k': return pieces.King()
+        if char == 'q': return pieces.Queen()
+        if char == 'b': return pieces.Bishop()
+        if char == 'n': return pieces.Knight()
+        if char == 'r': return pieces.Rook()
+        if char == 'p': return pieces.Pawn()
+
+    @staticmethod
+    def positions_from_FEN(fenStr):
+        board = []
+        innerBoard = []
+        for char in fenStr.split()[0]:
+            if char == '/':
+                board.append(innerBoard)
+                innerBoard = []
+            elif char.isdigit():
+                innerBoard.extend('-' * int(char))
+            else:
+                innerBoard.append(char)
+        return board
 
     #def get_pieces_with_moves_list(self, player):
     #    piecesWithMoves = []

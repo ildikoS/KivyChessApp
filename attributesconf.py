@@ -1,6 +1,6 @@
 import random
 
-tile_size = 80
+tile_size = 75
 
 mainFEN = 'rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR/ w KQkq - 0 1'
 

@@ -1,7 +1,9 @@
 import itertools
 import time
 
-tile_size = 80
+import attributesconf
+
+tile_size = attributesconf.tile_size
 
 
 class LastPieceStep:
@@ -26,15 +28,21 @@ class Piece:
         self.pieceColor = None
         self.availableMoves = []
 
-    def isInside(self, x, y):
-        return 0 <= x < 8 and 0 <= y < 8
+    @staticmethod
+    def is_inside(toX, toY):
+        return 0 <= toX < 8 and 0 <= toY < 8
 
-    def genSlidingMove(self, dirX, dirY):
+    def gen_sliding_move(self, dirX, dirY):
+        """
+        Calculating available moves of sliding pieces
+        :param dirX: the given direction on X axis
+        :param dirY: the given direction on Y axis
+        """
         for i in range(1, 8):
             X = self.coordinates[0] + (i * dirX)
             Y = self.coordinates[1] + (i * dirY)
 
-            if self.isInside(X, Y):
+            if self.is_inside(X, Y):
                 if self.board[X][Y] in self.player.pieces:
                     break
 
@@ -46,15 +54,15 @@ class Piece:
     def make_move(self, move):
         """
         Set the (x, y) square of piece
-        :param move: Tuple with number x, y coordinates
-        :param argPiece: Piece which wanted to be moved to the square
+        Saves the current game to can be restored
+        :param move: Tuple with integer x, y coordinates of piece
         """
         self.engine.pieceStepsList.append(LastPieceStep(self.board, self, move))
         self.engine.removingPiece = None
         x, y = self.coordinates
         self.board[x][y] = "-"
 
-        x, y = self.engine.pieceStepsList[-1].move
+        x, y = move #self.engine.pieceStepsList[-1].move
         self.engine.targetTile = self.engine.pieceStepsList[-1].targetTile
         self.board[x][y] = self.engine.pieceStepsList[-1].piece
         self.set_coords(x, y)
@@ -86,7 +94,7 @@ class Piece:
     def computer_move(self):
         """
 
-        :return: With a random move of a random enemy piece
+        :return: With the best piece and its best move based on the minimax algorithm
         """
         start_time = time.time()
         bestPieceWithMove = self.engine.ai.minimax(self.enemy, 3, False, -9999, 9999)
@@ -94,8 +102,8 @@ class Piece:
         #print(bestPieceWithMove[0])
         #print(self.board)
 
-        compPiece = bestPieceWithMove[1][0] #self.engine.bestPieceWithMove[0]
-        compMove = bestPieceWithMove[1][1] #self.engine.bestPieceWithMove[1]
+        compPiece = bestPieceWithMove[1][0]
+        compMove = bestPieceWithMove[1][1]
 
         #print(compPiece.availableMoves)
         compPiece.make_move(compMove)

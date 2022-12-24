@@ -11,7 +11,7 @@ class King(DragPiece):
         self.availableMoves = []
         for i, j in itertools.product(range(-1, 2), range(-1, 2)):
             targetX, targetY = self.coordinates[0] + i, self.coordinates[1] + j
-            if self.isInside(targetX, targetY) and self.board[targetX][targetY] not in self.player.pieces:
+            if self.is_inside(targetX, targetY) and self.board[targetX][targetY] not in self.player.pieces:
                 self.availableMoves.append((targetX, targetY))
 
     def get_piece_value(self):
@@ -25,17 +25,17 @@ class Queen(DragPiece):
     def generate_moves(self):
         self.availableMoves = []
 
-        self.genSlidingMove(1, 1)
-        self.genSlidingMove(1, -1)
+        self.gen_sliding_move(1, 1)
+        self.gen_sliding_move(1, -1)
 
-        self.genSlidingMove(-1, 1)
-        self.genSlidingMove(-1, -1)
+        self.gen_sliding_move(-1, 1)
+        self.gen_sliding_move(-1, -1)
 
-        self.genSlidingMove(1, 0)
-        self.genSlidingMove(0, 1)
+        self.gen_sliding_move(1, 0)
+        self.gen_sliding_move(0, 1)
 
-        self.genSlidingMove(-1, 0)
-        self.genSlidingMove(0, -1)
+        self.gen_sliding_move(-1, 0)
+        self.gen_sliding_move(0, -1)
 
     def get_piece_value(self):
         return 90
@@ -51,7 +51,7 @@ class Knight(DragPiece):
         self.availableMoves = []
         for x, y in tuples:
             targetX, targetY = self.coordinates[0] + x, self.coordinates[1] + y
-            if self.isInside(targetX, targetY) and self.board[targetX][targetY] not in self.player.pieces:
+            if self.is_inside(targetX, targetY) and self.board[targetX][targetY] not in self.player.pieces:
                 self.availableMoves.append((targetX, targetY))
 
     def get_piece_value(self):
@@ -65,11 +65,11 @@ class Bishop(DragPiece):  # futó
     def generate_moves(self):
         self.availableMoves = []
 
-        self.genSlidingMove(1, 1)
-        self.genSlidingMove(1, -1)
+        self.gen_sliding_move(1, 1)
+        self.gen_sliding_move(1, -1)
 
-        self.genSlidingMove(-1, 1)
-        self.genSlidingMove(-1, -1)
+        self.gen_sliding_move(-1, 1)
+        self.gen_sliding_move(-1, -1)
 
     def get_piece_value(self):
         return 30
@@ -82,11 +82,11 @@ class Rook(DragPiece):  # bástya
     def generate_moves(self):
         self.availableMoves = []
 
-        self.genSlidingMove(1, 0)
-        self.genSlidingMove(0, 1)
+        self.gen_sliding_move(1, 0)
+        self.gen_sliding_move(0, 1)
 
-        self.genSlidingMove(-1, 0)
-        self.genSlidingMove(0, -1)
+        self.gen_sliding_move(-1, 0)
+        self.gen_sliding_move(0, -1)
 
     def get_piece_value(self):
         return 50
@@ -107,24 +107,23 @@ class Pawn(DragPiece):
 
         toMove = 2 if self.alreadyMoved else 3
 
-        for i in range(1, toMove):
-            if self.get_piece_color() == 'w':
-                self.genCrossMove(startX + 1, startY + 1)
-                self.genCrossMove(startX + 1, startY - 1)
-
-                if self.isInside(startX + i, startY):
+        if self.get_piece_color() == 'w':
+            for i in range(1, toMove):
+                if self.is_inside(startX + i, startY):
                     if self.board[startX + i][startY] != '-':
                         break
                     self.availableMoves.append((startX + i, startY))
-            else:
-                self.genCrossMove(startX - 1, startY + 1)
-                self.genCrossMove(startX - 1, startY - 1)
-
-                if self.isInside(startX - i, startY):
+            self.genCrossMove(startX + 1, startY + 1)
+            self.genCrossMove(startX + 1, startY - 1)
+        else:
+            for i in range(1, toMove):
+                if self.is_inside(startX - i, startY):
                     if self.board[startX - i][startY] != '-':
                         break
                     self.availableMoves.append((startX - i, startY))
+            self.genCrossMove(startX - 1, startY + 1)
+            self.genCrossMove(startX - 1, startY - 1)
 
     def genCrossMove(self, targetX, targetY):
-        if self.isInside(targetX, targetY) and self.board[targetX][targetY] in self.enemy.pieces:
+        if self.is_inside(targetX, targetY) and self.board[targetX][targetY] in self.enemy.pieces:
             self.availableMoves.append((targetX, targetY))

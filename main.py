@@ -3,15 +3,14 @@ from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 
-
-# Configurate window settings
 import attributesconf
 from chessboardui import ChessBoardUI
 from gamebuttons import NewGameButton, ReStepButton
 
-Config.set('graphics', 'width', '640')
-Config.set('graphics', 'height', '950')
-#Config.set('graphics', 'resizable', '0')
+# Configurate window settings
+Config.set('graphics', 'width', '600')
+Config.set('graphics', 'height', '900')
+Config.set('graphics', 'resizable', '0')
 
 
 class MainScreen(Screen):

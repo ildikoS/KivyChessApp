@@ -4,10 +4,11 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
 
 from gameEngine import GameEngine
+import attributesconf
 
 
 class ChessBoardUI:
-    tile_size = 80
+    tile_size = attributesconf.tile_size
 
     def __init__(self, inputFEN, **kwargs):
         super().__init__(**kwargs)
@@ -32,7 +33,7 @@ class ChessBoardUI:
                                          size=(self.tile_size, self.tile_size)))
 
     def create_pieces(self):
-        self.gameEng.createBoard()
+        self.gameEng.create_board()
 
         for i, j in itertools.product(range(8), range(8)):
             if self.gameEng.board[i][j] != '-':
