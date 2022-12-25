@@ -29,10 +29,13 @@ class GameEngine:
 
                 self.blacks.append(self.board[i][j]) \
                     if self.board[i][j].get_piece_color() == 'b' else self.whites.append(self.board[i][j])
-        self.player1 = Player(self.blacks)
-        self.player2 = Player(self.whites)
-
+        self.player1 = Player(self.blacks, "b")
+        self.player2 = Player(self.whites, "w")
         return self.board
+
+    def set_players_score(self, bScore, wScore):
+        self.player1.set_score(bScore)
+        self.player2.set_score(wScore)
 
     #def checkCollision(self, enemy, playerPiece):
     #    """

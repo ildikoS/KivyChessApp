@@ -36,16 +36,7 @@ class DragPiece(DragBehavior, Image, Piece):
                 self.set_center(self, centerX, centerY)
 
                 # TODO: Refactoring
-                #self.engine.whiteTurn = True
-
-                #self.engine.careTaker.save()
-                #self.careTaker.save()
                 self.make_move((centerX, centerY))
-                #print(f"LÉPÉST CSINÁLT GGGGGGG: {self.engine.pieceStepsList}")
-                #print(self.engine.pieceStepsList[0].board)
-                #print(self.engine.board)
-                #print("address of a:", id(self.engine.pieceStepsList[0].board))
-                #print("addrss of b", id(self.engine.board))
 
                 self.change_pawn_to_queen(centerX, centerY)
 
@@ -55,13 +46,8 @@ class DragPiece(DragBehavior, Image, Piece):
                 #print(self.engine.evaluate())
 
                 self.is_already_moved(True)
-
                 self.check_checkmate()
 
-                #self.engine.move_ordering()
-                # print(len(self.enemy.pieces))
-                # self.engine.unmake_move()
-                # print(len(self.enemy.pieces))
                 if not self.engine.isGameOver:
                     print(self.board)
                     computerMove = self.computer_move()
@@ -69,10 +55,6 @@ class DragPiece(DragBehavior, Image, Piece):
                     computerMove[0].change_pawn_to_queen(computerMove[1][0], computerMove[1][1])
                     self.set_center(computerMove[0], computerMove[1][0], computerMove[1][1])
                     computerMove[0].check_checkmate()
-
-                # if self.get_piece_color() == "b" else False
-                #print(randMove[0].engine.evaluate())
-                #self.engine.whiteTurn = False
         else:
             self.set_center(self, self.coordinates[0], self.coordinates[1])
 
@@ -119,8 +101,12 @@ class DragPiece(DragBehavior, Image, Piece):
             self.engine.isGameOver = True
             print(f"CHECK MATE, winner is: {self.get_piece_color()}")
             popup = GameEndPopup()
+            if self.get_piece_color() == "w":
+                self.player.numberOfWins += 1
+            else:
+                self.enemy.numberOfWins += 1
             winner = "Fehér Játékos (Ön)" if self.get_piece_color() == "w" else "Fekete Játékos (Gép)"
-            popup.text = f"Nyertes: {winner}"
+            popup.text = f"Nyertes: {winner}, {self.player.numberOfWins} - {self.enemy.numberOfWins}"
             popup.open()
 
 

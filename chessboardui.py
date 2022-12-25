@@ -7,6 +7,15 @@ from gameEngine import GameEngine
 import attributesconf
 
 
+class Score:
+    whiteScore = 0
+    blackScore = 0
+
+    def save_score(self, blackScore, whiteScore):
+        self.blackScore = blackScore
+        self.whiteScore = whiteScore
+
+
 class ChessBoardUI:
     tile_size = attributesconf.tile_size
 
@@ -18,11 +27,14 @@ class ChessBoardUI:
         self.boardLayout = FloatLayout()
         self.pieceLayout = FloatLayout() #self.gameEng.layout
         self.offset = 0
+        self.scores = Score()
 
         self.draw_board()
         self.create_pieces()
         self.layout.add_widget(self.boardLayout)
         self.layout.add_widget(self.pieceLayout)
+
+        self.gameEng.set_players_score(self.scores.blackScore, self.scores.whiteScore)
 
     def draw_board(self):
         for i, j in itertools.product(range(8), range(8)):
@@ -53,10 +65,12 @@ class ChessBoardUI:
                 self.pieceLayout.add_widget(currPiece)
 
     def new_game(self):
+        self.scores.save_score(self.gameEng.player1.numberOfWins, self.gameEng.player2.numberOfWins)
         self.pieceLayout.clear_widgets()
         self.gameEng = GameEngine(self.inputFEN)
         self.draw_board()
         self.create_pieces()
+        self.gameEng.set_players_score(self.scores.blackScore, self.scores.whiteScore)
 
     def set_all_piece_center(self):
         for i, j in itertools.product(range(8), range(8)):
