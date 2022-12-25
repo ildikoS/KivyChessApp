@@ -1,6 +1,8 @@
 import itertools
 
 from kivy.uix.button import Button
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.popup import Popup
 
 
 class ReStepButton(Button):
@@ -9,19 +11,14 @@ class ReStepButton(Button):
         self.chessboard = cb
 
     def on_touch_down(self, touch):
-        if self.collide_point(touch.x, touch.y):
-            #print('down')
+        if self.collide_point(touch.x, touch.y) and len(self.chessboard.gameEng.pieceStepsList) != 0:
+            self.chessboard.gameEng.unmake_move()
+            self.chessboard.gameEng.unmake_move()
 
-            #print(f"GOMB MEGNYOMÁS ELŐTT: {self.chessboard.gameEng.board}")
-            if len(self.chessboard.gameEng.pieceStepsList) != 0:
-                self.chessboard.gameEng.unmake_move()
-                self.chessboard.gameEng.unmake_move()
+            self.chessboard.gameEng.fill_piece_list()
 
-                self.chessboard.gameEng.fill_piece_list()
-
-                self.chessboard.redraw_pieces()
-                self.chessboard.set_all_piece_center()
-            #print(f"GOMB MEGNYOMÁS UTÁN: {self.chessboard.gameEng.board}")
+            self.chessboard.redraw_pieces()
+            self.chessboard.set_all_piece_center()
 
         return super(ReStepButton, self).on_touch_down(touch)
 
@@ -36,3 +33,55 @@ class NewGameButton(Button):
             self.chessboard.new_game()
 
         return super(NewGameButton, self).on_touch_down(touch)
+
+
+class SettingsButton(Button):
+    def __init__(self, cb):
+        super(SettingsButton, self).__init__()
+        self.chessboard = cb
+
+    def on_touch_down(self, touch):
+        if self.collide_point(touch.x, touch.y):
+            layout = FloatLayout()
+            popup = SettingsPopup()
+            layout.add_widget(EasyModeButton(self.chessboard, popup))
+            layout.add_widget(MidModeButton(self.chessboard, popup))
+
+            popup.add_widget(layout)
+            popup.open()
+
+        return super(SettingsButton, self).on_touch_down(touch)
+
+
+class SettingsPopup(Popup):
+    pass
+
+
+class EasyModeButton(Button):
+    def __init__(self, cb, popup):
+        super(EasyModeButton, self).__init__()
+        self.chessboard = cb
+        self.popup = popup
+
+    def on_touch_down(self, touch):
+        if self.collide_point(touch.x, touch.y):
+            self.chessboard.gameEng.ai.set_depth(2)
+            self.popup.dismiss()
+            print(self.chessboard.gameEng.ai.depth)
+
+        return super(EasyModeButton, self).on_touch_down(touch)
+
+
+class MidModeButton(Button):
+    def __init__(self, cb, popup):
+        super(MidModeButton, self).__init__()
+        self.chessboard = cb
+        self.popup = popup
+
+    def on_touch_down(self, touch):
+        if self.collide_point(touch.x, touch.y):
+            self.chessboard.gameEng.ai.set_depth(3)
+            self.popup.dismiss()
+            print(self.chessboard.gameEng.ai.depth)
+
+        return super(MidModeButton, self).on_touch_down(touch)

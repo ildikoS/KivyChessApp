@@ -5,7 +5,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 
 import attributesconf
 from chessboardui import ChessBoardUI
-from gamebuttons import NewGameButton, ReStepButton
+from gamebuttons import NewGameButton, ReStepButton, SettingsButton
 
 # Configurate window settings
 Config.set('graphics', 'width', '600')
@@ -28,6 +28,7 @@ class PracticeScreen(Screen):
 def set_layout(layout, board):
     layout.add_widget(NewGameButton(board))
     layout.add_widget(ReStepButton(board))
+    layout.add_widget(SettingsButton(board))
     layout.add_widget(board.layout)
 
 

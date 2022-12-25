@@ -7,6 +7,7 @@ class AI:
     inf = 99999
 
     def __init__(self, board):
+        self.depth = 3
         self.board = board
 
     def minimax(self, player, depth, maxPlayer, alpha, beta):
@@ -126,6 +127,9 @@ class AI:
 
     def get_count(self, key, color):
         return sum(len([e for e in rows if type(e) == key and e.get_piece_color() == color]) for rows in self.board)
+
+    def set_depth(self, depth):
+        self.depth = depth
 
     @staticmethod
     def get_piece_value(pieceType):

@@ -77,27 +77,13 @@ class Piece:
 
         self.engine.set_king_square(self.get_piece_color())
 
-    #def unmake_move(self):
-    #    lastStep = self.engine.pieceStepsList[-1]
-    #    lastStep.piece.alreadyMoved = lastStep.alreadyMoved
-#
-    #    for i, j in itertools.product(range(8), range(8)):
-    #        self.board[i][j] = lastStep.board[i][j]
-    #        if self.board[i][j] != "-":
-    #            lastStep.board[i][j].set_coords(i, j)
-#
-    #    if lastStep.targetTile != "-":
-    #        lastStep.targetTile.player.pieces.append(lastStep.targetTile)
-#
-    #    self.engine.pieceStepsList.pop(-1)
-
     def computer_move(self):
         """
 
         :return: With the best piece and its best move based on the minimax algorithm
         """
         start_time = time.time()
-        bestPieceWithMove = self.engine.ai.minimax(self.enemy, 3, False, -9999, 9999)
+        bestPieceWithMove = self.engine.ai.minimax(self.enemy, self.engine.ai.depth, False, -9999, 9999)
         print(f"--- {time.time() - start_time} seconds ---")
         #print(bestPieceWithMove[0])
         #print(self.board)
