@@ -45,7 +45,7 @@ class SettingsButton(Button):
             layout = FloatLayout()
             popup = SettingsPopup()
             layout.add_widget(EasyModeButton(self.chessboard, popup))
-            layout.add_widget(MidModeButton(self.chessboard, popup))
+            layout.add_widget(HardModeButton(self.chessboard, popup))
 
             popup.add_widget(layout)
             popup.open()
@@ -72,9 +72,9 @@ class EasyModeButton(Button):
         return super(EasyModeButton, self).on_touch_down(touch)
 
 
-class MidModeButton(Button):
+class HardModeButton(Button):
     def __init__(self, cb, popup):
-        super(MidModeButton, self).__init__()
+        super(HardModeButton, self).__init__()
         self.chessboard = cb
         self.popup = popup
 
@@ -84,4 +84,4 @@ class MidModeButton(Button):
             self.popup.dismiss()
             print(self.chessboard.gameEng.ai.depth)
 
-        return super(MidModeButton, self).on_touch_down(touch)
+        return super(HardModeButton, self).on_touch_down(touch)

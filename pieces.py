@@ -14,9 +14,6 @@ class King(DragPiece):
             if self.is_inside(targetX, targetY) and self.board[targetX][targetY] not in self.player.pieces:
                 self.availableMoves.append((targetX, targetY))
 
-    def get_piece_value(self):
-        return 900
-
 
 class Queen(DragPiece):
     def __str__(self):
@@ -37,9 +34,6 @@ class Queen(DragPiece):
         self.gen_sliding_move(-1, 0)
         self.gen_sliding_move(0, -1)
 
-    def get_piece_value(self):
-        return 90
-
 
 class Knight(DragPiece):
     def __str__(self):
@@ -53,9 +47,6 @@ class Knight(DragPiece):
             targetX, targetY = self.coordinates[0] + x, self.coordinates[1] + y
             if self.is_inside(targetX, targetY) and self.board[targetX][targetY] not in self.player.pieces:
                 self.availableMoves.append((targetX, targetY))
-
-    def get_piece_value(self):
-        return 30
 
 
 class Bishop(DragPiece):  # futó
@@ -71,9 +62,6 @@ class Bishop(DragPiece):  # futó
         self.gen_sliding_move(-1, 1)
         self.gen_sliding_move(-1, -1)
 
-    def get_piece_value(self):
-        return 30
-
 
 class Rook(DragPiece):  # bástya
     def __str__(self):
@@ -87,9 +75,6 @@ class Rook(DragPiece):  # bástya
 
         self.gen_sliding_move(-1, 0)
         self.gen_sliding_move(0, -1)
-
-    def get_piece_value(self):
-        return 50
 
 
 class Pawn(DragPiece):

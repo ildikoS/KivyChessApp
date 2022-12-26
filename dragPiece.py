@@ -40,7 +40,7 @@ class DragPiece(DragBehavior, Image, Piece):
 
                 self.change_pawn_to_queen(centerX, centerY)
 
-                removingPiece = self.engine.removingPiece
+                removingPiece = self.removingPiece
                 if removingPiece is not None:
                     self.pieceLayout.remove_widget(removingPiece)
                 #print(self.engine.evaluate())

@@ -1,6 +1,6 @@
 import random
 
-tile_size = 85
+tile_size = 75
 
 easyDepth = 2
 midDepth = 3

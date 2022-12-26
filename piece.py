@@ -27,6 +27,7 @@ class Piece:
         self.enemy = None
         self.pieceColor = None
         self.availableMoves = []
+        self.removingPiece = None
 
     @staticmethod
     def is_inside(toX, toY):
@@ -58,7 +59,7 @@ class Piece:
         :param move: Tuple with integer x, y coordinates of piece
         """
         self.engine.pieceStepsList.append(LastPieceStep(self.board, self, move))
-        self.engine.removingPiece = None
+        self.removingPiece = None
         x, y = self.coordinates
         self.board[x][y] = "-"
 
@@ -67,7 +68,7 @@ class Piece:
         self.board[x][y] = self.engine.pieceStepsList[-1].piece
         self.set_coords(x, y)
         if self.engine.targetTile != "-":
-            self.engine.removingPiece = self.engine.targetTile
+            self.removingPiece = self.engine.targetTile
             self.enemy.pieces.remove(self.engine.targetTile)
 
         #print(argPiece.enemy.pieces)
@@ -94,7 +95,7 @@ class Piece:
         #print(compPiece.availableMoves)
         compPiece.make_move(compMove)
 
-        removingPiece = compPiece.engine.removingPiece
+        removingPiece = compPiece.removingPiece
         if removingPiece is not None:
             compPiece.pieceLayout.remove_widget(removingPiece)
 
