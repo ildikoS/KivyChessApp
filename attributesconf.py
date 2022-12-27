@@ -2,9 +2,6 @@ import random
 
 tile_size = 75
 
-easyDepth = 2
-midDepth = 3
-
 mainFEN = 'rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR/ w KQkq - 0 1'
 
 practiseFENs = [

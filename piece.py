@@ -1,4 +1,5 @@
 import itertools
+import random
 import time
 
 import attributesconf
@@ -89,8 +90,21 @@ class Piece:
         #print(bestPieceWithMove[0])
         #print(self.board)
 
-        compPiece = bestPieceWithMove[1][0]
-        compMove = bestPieceWithMove[1][1]
+        if bestPieceWithMove[1][0] is None:
+            randomPiece = None
+            randomMove = None
+            while randomPiece is None:
+                randomPiece = random.choice(self.player.pieces)
+                if not randomPiece.availableMoves:
+                    randomPiece = None
+                if randomPiece is not None:
+                    randomMove = random.choice(randomPiece.availableMoves)
+            bestPieceWithMove = randomPiece, randomMove
+            compPiece = bestPieceWithMove[0]
+            compMove = bestPieceWithMove[1]
+        else:
+            compPiece = bestPieceWithMove[1][0]
+            compMove = bestPieceWithMove[1][1]
 
         #print(compPiece.availableMoves)
         compPiece.make_move(compMove)

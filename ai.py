@@ -20,12 +20,7 @@ class AI:
         :param maxPlayer:
         :return:
         """
-        randomPiece = None
-        randomMove = None
-        while randomPiece is not None:
-            randomPiece = random.choice(player.pieces) if randomPiece.availableMoves else None
-            randomMove = random.choice(randomPiece.availableMoves)
-        bestPieceWithMove = randomPiece, randomMove
+        bestPieceWithMove = None, None
 
         if depth == 0:
             return self.evaluate(), bestPieceWithMove
