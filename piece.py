@@ -64,15 +64,13 @@ class Piece:
         x, y = self.coordinates
         self.board[x][y] = "-"
 
-        x, y = move #self.engine.pieceStepsList[-1].move
+        x, y = move
         self.engine.targetTile = self.engine.pieceStepsList[-1].targetTile
         self.board[x][y] = self.engine.pieceStepsList[-1].piece
         self.set_coords(x, y)
         if self.engine.targetTile != "-":
             self.removingPiece = self.engine.targetTile
             self.enemy.pieces.remove(self.engine.targetTile)
-
-        #print(argPiece.enemy.pieces)
 
         if self.coordinates == self.engine.kingSquare and y in [1, 5]:
             self.engine.do_castling()
@@ -84,11 +82,9 @@ class Piece:
 
         :return: With the best piece and its best move based on the minimax algorithm
         """
-        start_time = time.time()
+        #start_time = time.time()
         bestPieceWithMove = self.engine.ai.minimax(self.enemy, self.engine.ai.depth, False, -9999, 9999)
-        print(f"--- {time.time() - start_time} seconds ---")
-        #print(bestPieceWithMove[0])
-        #print(self.board)
+        #print(f"--- {time.time() - start_time} seconds ---")
 
         if bestPieceWithMove[1][0] is None:
             randomPiece = None
@@ -106,12 +102,7 @@ class Piece:
             compPiece = bestPieceWithMove[1][0]
             compMove = bestPieceWithMove[1][1]
 
-        #print(compPiece.availableMoves)
         compPiece.make_move(compMove)
-
-        removingPiece = compPiece.removingPiece
-        if removingPiece is not None:
-            compPiece.pieceLayout.remove_widget(removingPiece)
 
         return compPiece, compMove
 
@@ -119,15 +110,14 @@ class Piece:
     def set_piece_color(self, color):
         self.pieceColor = color
 
-    def set_engine(self, engine, layout):
+    def set_engine(self, engine):
         self.engine = engine
         self.board = self.engine.board
 
         self.player = self.engine.player1 if self.get_piece_color() == 'b' else self.engine.player2
         self.enemy = self.engine.player2 if self.player == self.engine.player1 else self.engine.player1
 
-        #self.careTaker = CareTaker(self.engine)
-
+    def set_layout(self, layout):
         self.pieceLayout = layout
 
     def get_piece_color(self):

@@ -32,38 +32,9 @@ class GameEngine:
         self.player2 = Player(self.whites, "w")
         return self.board
 
-    #def create_board(self):
-    #    for i, j in itertools.product(range(8), range(8)):
-    #        currPiece = self.board[i][j]
-    #        if currPiece != '-':
-    #            self.board[i][j] = self.get_piece(currPiece.lower())
-    #            self.board[i][j].set_piece_color('w' if currPiece.islower() else 'b')
-    #            self.board[i][j].set_coords(i, j)
-#
-    #            self.blacks.append(self.board[i][j]) \
-    #                if self.board[i][j].get_piece_color() == 'b' else self.whites.append(self.board[i][j])
-    #    self.player1 = Player(self.blacks, "b")
-    #    self.player2 = Player(self.whites, "w")
-    #    return self.board
-
     def set_players_score(self, bScore, wScore):
         self.player1.set_score(bScore)
         self.player2.set_score(wScore)
-
-    #def checkCollision(self, enemy, playerPiece):
-    #    """
-    #    Check if 2 pieces are collided or not
-    #    :param enemy: The other player
-    #    :param playerPiece: Current player's piece
-    #    :return: with enemyPiece if found collided piece, otherwise False
-    #    """
-    #    for enemyPiece in enemy.pieces:
-    #        if enemyPiece.coordinates == playerPiece.coordinates:
-    #            print("---------")
-    #            print(f"{enemyPiece} was removed")
-    #            print("---------")
-    #            return enemyPiece
-    #    return False
 
     def legal_moves(self, playerPiece, enemy):
         playerPiece.generate_moves()

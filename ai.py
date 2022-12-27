@@ -27,88 +27,56 @@ class AI:
 
         if maxPlayer:
             maxEvaluation = -self.inf
-            # for currPiece in player.pieces:
-            #    self.legal_moves(currPiece, currPiece.enemy)
             for currPiece, move in self.move_ordering(player):
-                #    for move in currPiece.availableMoves:
                 currPiece.make_move(move)
                 currEvaluation = self.minimax(currPiece.enemy, depth - 1, False, alpha, beta)
                 currValue = currEvaluation[0]
                 if currValue > maxEvaluation:
                     maxEvaluation = max(maxEvaluation, currValue)
                     bestPieceWithMove = currPiece, move
-                    # if depth == 1:
-                    #    print("DEPTH 1")
-                    #    print(currPiece, move, currValue)
-                    #    print(bestPieceWithMove)
                 currPiece.engine.unmake_move()
+
                 alpha = max(alpha, currValue)
-                # print(f"ALPHA: {alpha}")
-                # print(f"BETA: {beta}")
                 if beta <= alpha:
                     break
-            # print("MAXIMUM")
-            # print(bestPieceWithMove, maxEvaluation)
             return maxEvaluation, bestPieceWithMove
         else:
             minEvaluation = self.inf
-            # for currPiece in player.pieces:
-            #    self.legal_moves(currPiece, currPiece.enemy)
             for currPiece, move in self.move_ordering(player):
-                #    for move in currPiece.availableMoves:
                 currPiece.make_move(move)
                 currEvaluation = self.minimax(currPiece.enemy, depth - 1, True, alpha, beta)
                 currValue = currEvaluation[0]
-                print("LÉPETT")
-                print(currPiece, move, currValue)
-                # print(self.board)
                 if currValue < minEvaluation:
                     minEvaluation = min(minEvaluation, currValue)
                     bestPieceWithMove = currPiece, move
-                    if depth == 3:
-                        # print(self.board[4][1])
-                        print("--------------DEPTH 3---------------")
-                        print(currPiece, move, currValue)
-                        print(bestPieceWithMove)
-                    # print(bestPieceWithMove)
-
                 currPiece.engine.unmake_move()
-                # print(beta)
-                # print(alpha)
+
                 beta = min(beta, currValue)
                 if beta <= alpha:
                     break
-            # print("------")
-            # print("MINIMUM")
-            # print(self.board)
-            # print(bestPieceWithMove, minEvaluation)
             return minEvaluation, bestPieceWithMove
 
     def move_ordering(self, player):
         moveScores = []
         constVal = 13
         piecesWithMoves = player.get_pieces_with_moves_list(self.board)
-        #
+
         for piece, move in piecesWithMoves:
             score = 0
             toX, toY = move
             capturePiece = self.board[toX][toY]
             if capturePiece != "-":
                 score = constVal * self.get_piece_value(type(capturePiece)) - self.get_piece_value(type(piece))
-            # print(piece, move, score)
+
             if piece.engine.is_checkmate(piece.enemy):
                 score += 2000
 
             moveScores.append(score)
-        #
-        # Sorting
+
         if piecesWithMoves:
             piecesWithMoves, moveScores = zip(*sorted(zip(piecesWithMoves, moveScores), key=lambda x: x[1], reverse=True))
-        #
-        return piecesWithMoves
 
-    #
-    # print(sorted(zip(piecesWithMoves, moveScores), key=lambda x: x[1], reverse=True))
+        return piecesWithMoves
 
     def evaluate(self):
         whiteScore = self.count_pieces("w")

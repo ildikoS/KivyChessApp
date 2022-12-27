@@ -31,7 +31,7 @@ class DragPiece(DragBehavior, Image, Piece):
         #    #print((round(self.get_center_x()) // tile_size) + 35)
         #    print((round(self.get_center_x()) // (tile_size+self.offset)))
 
-        if (centerX, centerY) in self.availableMoves and not self.engine.isGameOver: #and self.get_piece_color() == "w":
+        if (centerX, centerY) in self.availableMoves and not self.engine.isGameOver and self.get_piece_color() == "w":
             if self.grabbed:
                 self.set_center(self, centerX, centerY)
 
@@ -51,6 +51,9 @@ class DragPiece(DragBehavior, Image, Piece):
                 if not self.engine.isGameOver:
                     print(self.board)
                     computerMove = self.computer_move()
+                    removingPiece = computerMove[0].removingPiece
+                    if removingPiece is not None:
+                        computerMove[0].pieceLayout.remove_widget(removingPiece)
                     computerMove[0].is_already_moved(True)
                     computerMove[0].change_pawn_to_queen(computerMove[1][0], computerMove[1][1])
                     self.set_center(computerMove[0], computerMove[1][0], computerMove[1][1])
@@ -67,7 +70,7 @@ class DragPiece(DragBehavior, Image, Piece):
     def on_touch_down(self, touch):
         super(DragPiece, self).on_touch_down(touch)
 
-        if self.collide_point(*touch.pos) and not self.engine.isGameOver: #and self.get_piece_color() == "w":
+        if self.collide_point(*touch.pos) and not self.engine.isGameOver and self.get_piece_color() == "w":
             self.generate_moves()
             #print(self.availableMoves)
             self.engine.legal_moves(self, self.enemy)

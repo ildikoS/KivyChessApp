@@ -52,7 +52,8 @@ class ChessBoardUI:
                 currPiece = self.gameEng.board[i][j]
                 currPiece.source = f'imgs/pieces/{currPiece.get_piece_color()}_{currPiece}_png_shadow_128px.png'
                 currPiece.pos = (self.offset + self.tile_size * i, self.offset + self.tile_size * j)
-                currPiece.set_engine(self.gameEng, self.pieceLayout)
+                currPiece.set_engine(self.gameEng)
+                currPiece.set_layout(self.pieceLayout)
 
                 self.pieceLayout.add_widget(currPiece)
 
