@@ -37,6 +37,11 @@ class GameEngine:
         self.player2.set_score(wScore)
 
     def legal_moves(self, playerPiece, enemy):
+        """
+        Selecting valid moves
+        :param playerPiece: whose moves to be selected
+        :param enemy: Player's enemy
+        """
         playerPiece.generate_moves()
         invalidMoves = set()
 
@@ -60,6 +65,11 @@ class GameEngine:
         return True
 
     def is_pawn_changed(self, piece):
+        """
+        Change pawn to queen
+        :param piece: The pawn
+        :return: With pawn, queen if pawn has changed, otherwise None
+        """
         if type(piece) == pieces.Pawn:
             if piece.get_piece_color() == 'w' and piece.coordinates[0] == 7:
                 return self.change_pawn(piece)
@@ -74,13 +84,18 @@ class GameEngine:
         piece = pieces.Queen()
         piece.set_piece_color(pawn.get_piece_color())
         piece.source = f'imgs/pieces/{piece.get_piece_color()}_queen_png_shadow_128px.png'
-        piece.set_engine(self, layout)
+        piece.set_engine(self)
+        piece.set_layout(layout)
         piece.set_coords(pawnX, pawnY)
         self.board[pawnX][pawnY] = piece
         piece.player.pieces.append(piece)
         return prevPiece, piece
 
     def can_castling(self, playerPiece):
+        """
+        Checks if rook and king can be castled
+        :param playerPiece: The rook
+        """
         self.set_king_square(playerPiece.get_piece_color())
         kingX, kingY = self.kingSquare
         king = self.board[kingX][kingY]
@@ -134,6 +149,12 @@ class GameEngine:
                 self.blacks.append(self.board[i][j]) \
                     if self.board[i][j].get_piece_color() == 'b' else self.whites.append(self.board[i][j])
 
+    def set_all_piece_center(self):
+        for i, j in itertools.product(range(8), range(8)):
+            if self.board[i][j] != '-':
+                self.board[i][j].set_center(self.board[i][j], self.board[i][j].coordinates[0],
+                                            self.board[i][j].coordinates[1])
+
     def set_king_square(self, pieceColor):
         for i in range(8):
             for j in range(8):
@@ -151,6 +172,9 @@ class GameEngine:
         if char == 'p': return pieces.Pawn()
 
     def positions_from_FEN(self, fenStr):
+        """
+        Set the board by the FEN string
+        """
         board = []
         innerBoard = []
         mainFEN = 'rnbkqbnr/pppppppp/--------/--------/--------/--------/PPPPPPPP/RNBKQBNR/'

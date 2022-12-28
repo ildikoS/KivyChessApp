@@ -73,8 +73,3 @@ class ChessBoardUI:
         self.create_pieces()
         self.gameEng.set_players_score(self.scores.blackScore, self.scores.whiteScore)
 
-    def set_all_piece_center(self):
-        for i, j in itertools.product(range(8), range(8)):
-            if self.gameEng.board[i][j] != '-':
-                self.gameEng.board[i][j].set_center(self.gameEng.board[i][j], self.gameEng.board[i][j].coordinates[0],
-                                            self.gameEng.board[i][j].coordinates[1])

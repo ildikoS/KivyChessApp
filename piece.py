@@ -1,6 +1,4 @@
-import itertools
 import random
-import time
 
 import attributesconf
 
@@ -9,7 +7,7 @@ tile_size = attributesconf.tile_size
 
 class LastPieceStep:
     def __init__(self, board, piece, targetMove):
-        self.board = [x[:] for x in board]
+        self.board = [rows[:] for rows in board]
         self.piece = piece
         self.alreadyMoved = self.piece.alreadyMoved
         self.coordinates = piece.coordinates

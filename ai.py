@@ -11,15 +11,6 @@ class AI:
         self.board = board
 
     def minimax(self, player, depth, maxPlayer, alpha, beta):
-        """
-
-        :param beta:
-        :param alpha:
-        :param player:
-        :param depth:
-        :param maxPlayer:
-        :return:
-        """
         bestPieceWithMove = None, None
 
         if depth == 0:
@@ -57,6 +48,11 @@ class AI:
             return minEvaluation, bestPieceWithMove
 
     def move_ordering(self, player):
+        """
+        Set pieces in order
+        :param player:
+        :return: ordered list of pieces with moves
+        """
         moveScores = []
         constVal = 13
         piecesWithMoves = player.get_pieces_with_moves_list(self.board)

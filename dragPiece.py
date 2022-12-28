@@ -1,5 +1,3 @@
-import itertools
-
 from kivy.properties import StringProperty
 from kivy.uix.behaviors import DragBehavior
 from kivy.uix.image import Image
@@ -24,18 +22,8 @@ class DragPiece(DragBehavior, Image, Piece):
         centerX = round(self.get_center_x()) // tile_size
         centerY = round(self.get_center_y()) // tile_size
 
-        #if self.grabbed:
-        #    #print(self.get_center_x())
-        #    #print(round(self.get_center_x()))
-        #    print(round(self.get_center_x()) // tile_size)
-        #    #print((round(self.get_center_x()) // tile_size) + 35)
-        #    print((round(self.get_center_x()) // (tile_size+self.offset)))
-
         if (centerX, centerY) in self.availableMoves and not self.engine.isGameOver and self.get_piece_color() == "w":
             if self.grabbed:
-                self.set_center(self, centerX, centerY)
-
-                # TODO: Refactoring
                 self.make_move((centerX, centerY))
 
                 self.change_pawn_to_queen(centerX, centerY)
@@ -43,7 +31,6 @@ class DragPiece(DragBehavior, Image, Piece):
                 removingPiece = self.removingPiece
                 if removingPiece is not None:
                     self.pieceLayout.remove_widget(removingPiece)
-                #print(self.engine.evaluate())
 
                 self.is_already_moved(True)
                 self.check_checkmate()
@@ -56,8 +43,9 @@ class DragPiece(DragBehavior, Image, Piece):
                         computerMove[0].pieceLayout.remove_widget(removingPiece)
                     computerMove[0].is_already_moved(True)
                     computerMove[0].change_pawn_to_queen(computerMove[1][0], computerMove[1][1])
-                    self.set_center(computerMove[0], computerMove[1][0], computerMove[1][1])
                     computerMove[0].check_checkmate()
+
+                self.engine.set_all_piece_center()
         else:
             self.set_center(self, self.coordinates[0], self.coordinates[1])
 
@@ -72,9 +60,7 @@ class DragPiece(DragBehavior, Image, Piece):
 
         if self.collide_point(*touch.pos) and not self.engine.isGameOver and self.get_piece_color() == "w":
             self.generate_moves()
-            #print(self.availableMoves)
             self.engine.legal_moves(self, self.enemy)
-            #print(self.availableMoves)
             self.grabbed = True
             self.drawAvailablePositions()
 

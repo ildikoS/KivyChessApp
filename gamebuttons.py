@@ -1,5 +1,3 @@
-import itertools
-
 from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
@@ -18,7 +16,7 @@ class ReStepButton(Button):
             self.chessboard.gameEng.fill_piece_list()
 
             self.chessboard.redraw_pieces()
-            self.chessboard.set_all_piece_center()
+            self.chessboard.gameEng.set_all_piece_center()
 
         return super(ReStepButton, self).on_touch_down(touch)
 
